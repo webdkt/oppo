@@ -9,86 +9,99 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <title>My InK Page</title>
         <meta name="description" content="">
-        <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="HandheldFriendly" content="True">
         <meta name="MobileOptimized" content="320">
     
-        <!-- Favicon.ico placeholder -->
-        <link rel="shortcut icon" href="{% static 'lawaccount/img/ink-favicon.ico' %}">
+
         
         <!-- Apple icon placeholder -->
-        <link rel="apple-touch-icon-precomposed" href="{% static 'lawaccount/img/touch-icon.57.png' %}">
-        <link rel="apple-touch-icon-precomposed" sizes="72x72" href="{% static 'lawaccount/img/touch-icon.72.png' %}">
-        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="{% static 'lawaccount/img/touch-icon.114.png' %}">
-
-        <!-- Apple splash screen placeholder -->
-        <link rel="apple-touch-startup-image" href="{% static 'lawaccount/img/splash.320x460.png' %}" media="screen and (min-device-width: 200px) and (max-device-width: 320px) and (orientation:portrait)">
-        <link rel="apple-touch-startup-image" href="{% static 'lawaccount/img/splash.768x1004.png' %}" media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:portrait)">
-        <link rel="apple-touch-startup-image" href="{% static 'lawaccount/img/splash.1024x748.png' %}" media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:landscape)">
-
-        <!-- Stylesheets -->
-        <link rel="stylesheet" href="{% static 'lawaccount/css/ink.css' %}">
+        <link href="{% static 'lawaccount/css/bootstrap.min.css' %}" rel="stylesheet" media="screen">
+		<link href="{% static 'lawaccount/css/font-awesome.min.css' %}" rel="stylesheet" media="screen">
+		
+		
+		<script src="{% static 'lawaccount/js/jquery.min.js' %}"></script>
+		<script src="{% static 'lawaccount/js/bootstrap.min.js' %}"></script>
         
-        <!--[if IE 7 ]>
-            <link rel="stylesheet" href="{% static 'lawaccount/css/ink-ie7.css' %}" type="text/css" media="screen" title="no title" charset="utf-8">
-        <![endif]-->
+		<style type="text/css">
+			body {
+			  padding-top: 40px;
+			  padding-bottom: 40px;
+			  background-color: #eee;
+			}
 
-        <!-- Javascripts -->
-        <script type="text/javascript" src="{% static 'lawaccount/js/holder.js' %}"></script>
-        <script type="text/javascript" src="{% static 'lawaccount/js/ink.min.js' %}"></script>
-        <script type="text/javascript" src="{% static 'lawaccount/js/ink-ui.min.js' %}"></script>
-        <script type="text/javascript" src="{% static 'lawaccount/js/autoload.js' %}"></script>
-        <script type="text/javascript" src="{% static 'lawaccount/js/html5shiv.js' %}"></script>
-        
-        
+			.form-signin {
+			  max-width: 330px;
+			  padding: 15px;
+			  margin: 0 auto;
+			}
+			.form-signin .form-signin-heading,
+			.form-signin .checkbox {
+			  margin-bottom: 10px;
+			}
+			.form-signin .checkbox {
+			  font-weight: normal;
+			}
+			.form-signin .form-control {
+			  position: relative;
+			  font-size: 16px;
+			  height: auto;
+			  padding: 10px;
+			  -webkit-box-sizing: border-box;
+				 -moz-box-sizing: border-box;
+					  box-sizing: border-box;
+			}
+			.form-signin .form-control:focus {
+			  z-index: 2;
+			}
+			.form-signin input[type="text"] {
+			  margin-bottom: -1px;
+			  border-bottom-left-radius: 0;
+			  border-bottom-right-radius: 0;
+			}
+			.form-signin input[type="password"] {
+			  margin-bottom: 10px;
+			  border-top-left-radius: 0;
+			  border-top-right-radius: 0;
+			}
+</style>
+		
+		
     </head>
     <body>
-	    <div class="ink-grid">
+	
+	
+	<h1><i class="icon-keyboard  icon-large"></i> Frank's Demo</h1>
+	 <div class="container">
+
+      <form class="form-signin" action="{% url 'lawaccount:loginAction' %}" method="post">{% csrf_token %}
+        <h2 class="form-signin-heading">Please sign in</h2>
+        <input type="text" class="form-control" placeholder="Email address" autofocus name="username">
+        <input type="password" class="form-control" placeholder="Password" name="password">
+        <label class="checkbox">
+          <input type="checkbox" value="remember-me"> Remember me
+        </label>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+      </form>
+
+    </div> <!-- /container -->
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 		{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 		
-		<div class="column-group">
-			<div class="large-80"></div>
-			<div class="large-20"></div>
-		</div>
+	
 		
-		<p>Login Form</p>
-    <form class="ink-form" action="{% url 'lawaccount:loginAction' %}" method="post">{% csrf_token %}
-		<fieldset>
-			<div class="control-group column-group gutters">
-				<label class="large-20 content-right" for="username">User name</label>
-				<div class="control large-80">
-					<input type="text" id="username" name="username">
-				</div>
-			</div>
-		
-			<div class="control-group column-group gutters">
-				<label class="large-20 content-right" for="password">Password</label>
-				<div class="control large-80">
-					<input type="password" id="password" name="password">
-				</div>
-			</div>
-		</fieldset>
-		<input type="submit" value="Login" class="ink-button">
-    </form>
-			
-		</div> 
+
 	     
-		 
-		 <footer>
-            <div class="ink-grid">
-                <nav class="ink-navigation">
-                    <ul class="menu horizontal">
-                        <li><a href="#">Footer item 1</a></li>
-                        <li><a href="#">Footer item 2</a></li>
-                        <li><a href="#">Footer item 3</a></li>
-                    </ul>
-                </nav>
-                <p class="small vspace">
-                    All stuff reserved.<br>
-                    Stuff is a trademark created at the Stuff that makes Stuff
-                </p>
-            </div>
-        </footer>
+
         
     </body>
 </html>

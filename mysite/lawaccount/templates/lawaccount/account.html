@@ -26,24 +26,35 @@
         <link rel="apple-touch-startup-image" href="{% static 'lawaccount/img/splash.768x1004.png' %}" media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:portrait)">
         <link rel="apple-touch-startup-image" href="{% static 'lawaccount/img/splash.1024x748.png' %}" media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:landscape)">
 
-        <!-- Stylesheets -->
-        <link rel="stylesheet" href="{% static 'lawaccount/css/ink.css' %}">
         
         <!--[if IE 7 ]>
             <link rel="stylesheet" href="{% static 'lawaccount/css/ink-ie7.css' %}" type="text/css" media="screen" title="no title" charset="utf-8">
         <![endif]-->
+		
+		
+		 <link href="{% static 'lawaccount/css/bootstrap.min.css' %}" rel="stylesheet" >
+		 <link href="{% static 'lawaccount/css/font-awesome.min.css' %}" rel="stylesheet" >
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="../../assets/js/html5shiv.js"></script>
+      <script src="../../assets/js/respond.min.js"></script>
+    <![endif]-->
+		
 
         <!-- Javascripts -->
-        <script type="text/javascript" src="{% static 'lawaccount/js/holder.js' %}"></script>
+        <!--script type="text/javascript" src="{% static 'lawaccount/js/holder.js' %}"></script>
         <script type="text/javascript" src="{% static 'lawaccount/js/ink.min.js' %}"></script>
         <script type="text/javascript" src="{% static 'lawaccount/js/ink-ui.min.js' %}"></script>
         <script type="text/javascript" src="{% static 'lawaccount/js/autoload.js' %}"></script>
-        <script type="text/javascript" src="{% static 'lawaccount/js/html5shiv.js' %}"></script>
+        <script type="text/javascript" src="{% static 'lawaccount/js/html5shiv.js' %}"></script-->
+		<script src="{% static 'lawaccount/js/jquery.min.js' %}"></script>
+		<script src="{% static 'lawaccount/js/bootstrap.min.js' %}"></script>
         
         
     </head>
     <body>
-	    <div class="ink-grid">
+
 		{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 		
 		<div class="column-group">
@@ -51,27 +62,109 @@
 			<div class="large-20"></div>
 		</div>
 		
-		<p>Login Form</p>
-    <form class="ink-form" action="{% url 'lawaccount:loginAction' %}" method="post">{% csrf_token %}
-		<fieldset>
-			<div class="control-group column-group gutters">
-				<label class="large-20 content-right" for="username">User name</label>
-				<div class="control large-80">
-					<input type="text" id="username" name="username">
-				</div>
-			</div>
-		
-			<div class="control-group column-group gutters">
-				<label class="large-20 content-right" for="password">Password</label>
-				<div class="control large-80">
-					<input type="password" id="password" name="password">
-				</div>
-			</div>
-		</fieldset>
-		<input type="submit" value="Login" class="ink-button">
+<nav class="navbar navbar-default" role="navigation">
+  <!-- Brand and toggle get grouped for better mobile display -->
+  <div class="navbar-header">
+    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+      <span class="sr-only">Toggle navigation</span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand" href="#"><i class="icon-keyboard  icon-2x"></i></a>
+  </div>
+
+  <!-- Collect the nav links, forms, and other content for toggling -->
+  <div class="collapse navbar-collapse navbar-ex1-collapse">
+    <ul class="nav navbar-nav">
+      <li class="dropdown active">
+		<a class="dropdown-toggle" data-toggle="dropdown" href="{% url 'lawaccount:clientListView' %}"><i class="icon-user"></i>Clients <b class="caret"></b></a>
+		<ul class="dropdown-menu">
+          <li><a href="{% url 'lawaccount:clientListView' %}"><i class="icon-table"></i>List</a></li>
+          <li><a href="{% url 'lawaccount:client_add' %}"><i class="icon-plus"></i>Create new</a></li>
+          <li><a href="#"><i class="icon-print"></i>Print</a></li>
+          <li><a href="#"><i class="icon-search"></i>Advanced Search</a></li>
+          <li><a href="#"><i class="icon-bar-chart"></i>Reports</a></li>
+        </ul>
+	  </li>
+      <li><a href="#">Demo</a></li>
+      <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown Demo<b class="caret"></b></a>
+        <ul class="dropdown-menu">
+          <li><a href="#">Action</a></li>
+          <li><a href="#">Another action</a></li>
+          <li><a href="#">Something else here</a></li>
+          <li><a href="#">Separated link</a></li>
+          <li><a href="#">One more separated link</a></li>
+        </ul>
+      </li>
+    </ul>
+    <form class="navbar-form navbar-left" role="search">
+      <div class="form-group">
+        <input type="text" class="form-control" placeholder="Search">
+      </div>
+      <button type="submit" class="btn btn-default">Submit</button>
     </form>
-			
-		</div> 
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="#">Link</a></li>
+      <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+        <ul class="dropdown-menu">
+          <li><a href="#">Action</a></li>
+          <li><a href="#">Another action</a></li>
+          <li><a href="#">Something else here</a></li>
+          <li><a href="#">Separated link</a></li>
+        </ul>
+      </li>
+    </ul>
+  </div><!-- /.navbar-collapse -->
+</nav>
+
+
+      <!-- Main component for a primary marketing message or call to action -->
+      
+       
+
+<div class="container">
+	<div class="jumbotron">
+
+ 
+   
+					<table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th class="content-left">Client Name</th>
+                                <th class="content-left">Mobile</th>
+                                <th class="content-left">NRIC/FIN</th>
+                            </tr>
+                        </thead>
+                        
+						{% if client_list %}
+                        <tbody>
+							{% for client in client_list %}
+							<tr>
+								<td><a href="{% url 'lawaccount:client_update' client.id %}">{{ client.first_name }} {{ client.last_name }} </a></td>
+								<td>{{client.mobile_number}}</td>
+								<td>{{client.nric_fin}}</td>
+							</tr>
+							{% endfor %}
+                            
+                        </tbody>
+						{% else %}
+							<tfoot>
+                            <tr>
+                                <td colspan="3">No client records</td>
+                            </tr>
+							</tfoot>
+						{% endif %}
+                    </table>
+	
+
+	
+	
+
+  </div>
+</div>
 	     
 		 
 		 <footer>

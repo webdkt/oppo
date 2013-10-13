@@ -3,11 +3,13 @@ from django.conf.urls import patterns, url
 
 from lawaccount import views
 urlpatterns = patterns('',
-    #url(r'^$', views.MainView.as_view(), name='main'),
+    url(r'^$', views.ClientListView.as_view(), name='mainView'),
     url(r'^login/$', views.LoginView.as_view(), name='login'),
     url(r'^login.do/$', views.loginAction, name='loginAction'),
-    #url(r'^client/$', views.ClientListView.as_view(), name='clientList'),
-    #url(r'^client/(?P<pk>\d+)/$', views.ClientDetail.as_view(), name='clientDetail'),
+    url(r'^client/$', views.ClientListView.as_view(), name='clientListView'),
+    url(r'^client/add/$', views.ClientCreate.as_view(), name='client_add'),
+    url(r'^client/(?P<pk>\d+)/$', views.ClientUpdate.as_view(), name='client_update'),
+    url(r'^client/(?P<pk>\d+)/delete$', views.ClientDelete.as_view(), name='client_delete'),
     #url(r'^(?P<poll_id>\d+)/vote/$', views.vote, name='vote'),
 )
 

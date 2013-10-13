@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.core.urlresolvers import reverse
 # Create your models here.
 
 tablePrefix = "LA_"
@@ -27,6 +27,9 @@ class Client(models.Model):
 
     def __unicode__(self):  # Python 3: def __str__(self):
         return self.first_name + ' ' + self.last_name
+
+    def get_absolute_url(self):
+        return reverse('lawaccount:clientListView')
 
 
 class ServiceLog(models.Model):
