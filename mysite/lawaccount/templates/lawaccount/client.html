@@ -1,0 +1,45 @@
+{% extends 'lawaccount/base.html' %}
+
+
+{% block content %}
+
+	<div class="jumbotron">
+
+ 
+   
+					<table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th class="content-left">Client Name</th>
+                                <th class="content-left">Mobile</th>
+                                <th class="content-left">NRIC/FIN</th>
+                            </tr>
+                        </thead>
+                        
+						{% if client_list %}
+                        <tbody>
+							{% for client in client_list %}
+							<tr>
+								<td><a href="{% url 'lawaccount:client_update' client.id %}">{{ client.first_name }} {{ client.last_name }} </a></td>
+								<td>{{client.mobile_number}}</td>
+								<td>{{client.nric_fin}}</td>
+							</tr>
+							{% endfor %}
+                            
+                        </tbody>
+						{% else %}
+							<tfoot>
+                            <tr>
+                                <td colspan="3">No client records</td>
+                            </tr>
+							</tfoot>
+						{% endif %}
+                    </table>
+	
+
+	
+	
+
+	</div>
+
+{% endblock %}

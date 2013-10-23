@@ -1,4 +1,4 @@
 from django.contrib import admin
-from lawaccount.models import Client
+from lawaccount.models import Account
 
-admin.site.register(Client)
+admin.site.register(Account)
