@@ -1,10 +1,10 @@
-# Create your views here.
+﻿# Create your views here.
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse,reverse_lazy
 from django.views import generic
 import json
-
+import lawaccount.models
 from lawaccount.models import Client, Account
 from lawaccount.forms import ClientForm
 
@@ -94,6 +94,20 @@ class ClientDetailView(generic.DetailView):
         return Client.objects
 '''
 
+
+
+def deleteAccounts(request):
+    print >>sys.stderr, 'deleting accounts'
+    #id = request.POST['deleteFormIDs']
+    ids = request.POST.getlist('selected_item')
+    print >>sys.stderr, ids
+    #print >>sys.stderr, id
+    return HttpResponseRedirect(reverse(CURRENT_APP+':login',current_app=CURRENT_APP))
+
+
+
+
+
 def loginAction(request):
     username = request.POST['username']
     password = request.POST['password']
@@ -105,7 +119,7 @@ def loginAction(request):
             return HttpResponseRedirect(reverse(CURRENT_APP+':clientListView',current_app=CURRENT_APP))
             #return render(request, CURRENT_APP +'/login.html',{'error_message': 'Login Success'})
         else:
-            return HttpResponseRedirect(reverse(CURRENT_APP+':login',current_app=CURRENT_APP,kwargs={'error_message:User Account Locked'}))
+            return HttpResponseRedirect(reverse(CURRENT_APP+':login',current_app=CURRENT_APP,kwargs={'error_message':'User Account Locked'}))
             # Return a 'disabled account' error message
     else:
         # Return an 'invalid login' error message.
@@ -113,18 +127,22 @@ def loginAction(request):
 
         #return HttpResponseRedirect(reverse(CURRENT_APP+':login',current_app='lawaccount',kwargs={'error_message:Invalid User/Password'}))
 
+'''
+配合JQuery Datatables,用Ajax GET方法在服务器端获取数据
 
+'''
 def getAccountListAction(request):
-    cols = ['acc_name','primary_phone','mobile','email']
+    #col_idx = ['0','1','2','3','4']
+    cols = ['acc_name','primary_phone','mobile','email','fax','id']
+    col_idx = range(len(cols))
     defaultPageSize = 10
     startIndex = 0
     endIndex = startIndex + defaultPageSize
-
-    q = Account.objects
+    modelClass = getattr(lawaccount.models, 'Account')
+    q = modelClass.objects
+    #q = Account.objects
     #q = Account.objects.filter(headline__startswith="What")
-
-    logger.error('Something went wrong!')
-    logger.info('tttttttttttttttttt')
+    print >>sys.stderr, 'q genereated !'
     if request.GET.has_key('sSearch'):
         searchString =  request.GET['sSearch']
         print >>sys.stderr, 'addiing filter!'
@@ -135,9 +153,9 @@ def getAccountListAction(request):
             if request.GET['bSortable_'+ request.GET['iSortCol_'+str(i)]] == 'true':
                 direction = request.GET.get('iSortDir_'+str(i),'asc')
                 if direction == 'asc':
-                    q = q.order_by(cols[int(request.GET['iSortCol_'+str(i)])])
+                    q = q.order_by(cols[int(request.GET['iSortCol_'+str(i)])-1])
                 else:
-                    q = q.order_by('-'+cols[int(request.GET['iSortCol_'+str(i)])])
+                    q = q.order_by('-'+cols[int(request.GET['iSortCol_'+str(i)])-1])
 
     if request.GET.has_key('iDislayStart'):
         startIndex = request.GET['iDisplayStart']
@@ -154,9 +172,67 @@ def getAccountListAction(request):
     response_dict = {'sEcho':'','iTotalRecords':'','iTotalDisplayRecords':'', 'aaData':''}
     response_dict['sEcho']= request.GET['sEcho']
     response_dict['iTotalRecords']= total
-    response_dict['iTotalDisplayRecords'] = endIndex - startIndex
-    aaData = []
-    for row in result:
-        aaData.append([row.acc_name,row.primary_phone, row.mobile,row.email,row.fax])
+    response_dict['iTotalDisplayRecords'] = min(endIndex - startIndex, total)
+    aaData = [ dict(dict(zip(col_idx, [getattr(row,colname) for colname in cols] )).items() + {'DT_RowClass':'Account', 'DT_RowId': str(row.id)}.items()) for row in result ]
+
+    #aaData =[ [ col_idx[cols.index(colname)] + ":" + str(getattr(row,colname)) for colname in cols] for row  in result ]
+    #[]
+    #     for row in result:
+#        aaData.append([row.acc_name,row.primary_phone, row.mobile,row.email,row.fax])
     response_dict['aaData']=aaData
+    print >> sys.stderr, json.dumps(response_dict)
+    return HttpResponse(json.dumps(response_dict), mimetype='application/json')
+
+
+'''
+通用查询方法，配合JQuery Datatables plugin, 来获取某个表。特定的表需要扩展这个Class，指定新的
+'''
+def getDataTable(request, modelName, cols, searchColName):
+    #cols = ['acc_name','primary_phone','mobile','email','fax','id']
+    col_idx = range(len(cols))
+    defaultPageSize = 10
+    startIndex = 0
+    endIndex = startIndex + defaultPageSize
+    modelClass = getattr(lawaccount.models, modelName)
+    q = modelClass.objects
+    #q = Account.objects.filter(headline__startswith="What")
+
+    if request.GET.has_key('sSearch'):
+        searchString =  request.GET['sSearch']
+        print >>sys.stderr, 'addiing filter!'
+        q = q.filter(acc_name__istartswith = searchString)
+
+    if request.GET.has_key('iSortCol_0'):
+        for i in range(0,int(request.GET['iSortingCols'] )):
+            if request.GET['bSortable_'+ request.GET['iSortCol_'+str(i)]] == 'true':
+                direction = request.GET.get('iSortDir_'+str(i),'asc')
+                if direction == 'asc':
+                    q = q.order_by(cols[int(request.GET['iSortCol_'+str(i)])-1])
+                else:
+                    q = q.order_by('-'+cols[int(request.GET['iSortCol_'+str(i)])-1])
+
+    if request.GET.has_key('iDislayStart'):
+        startIndex = request.GET['iDisplayStart']
+    if request.GET.has_key('iDisplayLength'):
+        endIndex = int(request.GET['iDisplayLength'])
+        if endIndex <> -1:
+            endIndex = startIndex + endIndex
+        else:
+            endIndex = startIndex + defaultPageSize
+    total = q.count()
+    result = q[startIndex:endIndex]
+
+
+    response_dict = {'sEcho':'','iTotalRecords':'','iTotalDisplayRecords':'', 'aaData':''}
+    response_dict['sEcho']= request.GET['sEcho']
+    response_dict['iTotalRecords']= total
+    response_dict['iTotalDisplayRecords'] = min(endIndex - startIndex, total)
+    aaData = [ dict(dict(zip(col_idx, [getattr(row,colname) for colname in cols] )).items() + {'DT_RowClass':modelName, 'DT_RowId': 'row_'+str(row.id)}.items()) for row in result ]
+
+    #aaData =[ [ col_idx[cols.index(colname)] + ":" + str(getattr(row,colname)) for colname in cols] for row  in result ]
+    #[]
+    #     for row in result:
+#        aaData.append([row.acc_name,row.primary_phone, row.mobile,row.email,row.fax])
+    response_dict['aaData']=aaData
+    print >> sys.stderr, json.dumps(response_dict)
     return HttpResponse(json.dumps(response_dict), mimetype='application/json')

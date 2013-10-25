@@ -2,80 +2,115 @@
 
 
 {% block custom_script %}
-			$.extend( $.fn.dataTableExt.oStdClasses, {
-				"sSortAsc": "header headerSortDown",
-				"sSortDesc": "header headerSortUp",
-				"sSortable": "header"
-			} );
+			
 			$(document).ready(function() {
-				$('#table_list_view').dataTable({
-					"sDom": "<'row'<'span8'l><'span8'f>r>t<'row'<'span8'i><'span8'p>>",
+				var aSelected = [];
+				var oTable;
+				
+				
+				/* initialize table */
+				oTable = $('#table_list_view').dataTable({
+					"sDom": "<'toolbar'><'row'<'col-sm-12'<'pull-right'f><'pull-left'l>r<'clearfix'>>>t<'row'<'col-sm-12'<'pull-left'i><'pull-right'p><'clearfix'>>>",
 					"bProcessing": true,
 					"bServerSide": true,
-					"sAjaxSource": "{% url 'lawaccount:getAccountListAction' %}"
+					"sAjaxSource": "{% url 'lawaccount:getAccountListAction' %}",
+					"sPaginationType": "bs_normal",
+					"aoColumnDefs": [ 
+						{
+							// `data` refers to the data for the cell (defined by `mData`, which
+							// defaults to the column being worked with, in this case is the first
+							// Using `row[0]` is equivalent.
+							"mRender": function ( data, type, row ) {
+								return '<a href="delete/' + data + '"> Delete </a>' ;
+							},
+							"aTargets": [ 5 ]
+						},
+						{
+							// 复选框
+							// defaults to the column being worked with, in this case is the first
+							// Using `row[0]` is equivalent.
+							"mRender": function ( data, type, row ) {
+								return '<div class="checkbox"><label><input type="checkbox" name="selected_item" value="' + row[5] +'"> ' + data + '</label></div>';
+							},
+							"aTargets": [ 0 ]
+						}
+					]
+					
 				});
+				$("div.toolbar").html('<p> \
+										  <div class="btn-toolbar">  \
+											<div class="btn-group"> \
+											  <button type="button" class="btn btn-default" id="btn_Create" title="Create new account"><span class="glyphicon glyphicon-plus"></span></button> \
+											  <button type="button" class="btn btn-default" id="btn_Edit" title="Edit selected account"><span class="glyphicon glyphicon-pencil"></span></button> \
+											  <button type="button" class="btn btn-default" id="btn_Delete" title="Delete selected account"><span class="glyphicon glyphicon-trash"></span></button> \
+											  <button type="button" class="btn btn-default" id="btn_SelectAll" title="Select All"><span class="glyphicon glyphicon-ok"></span></button> \
+											  <button type="button" class="btn btn-default" id="btn_InvertSelect" title="Invert Selection"><span class="glyphicon glyphicon-ok-sign"></span></button> \
+											  <button type="button" class="btn btn-default" id="btn_ClearSelect" title="Clear Selection"><span class="glyphicon glyphicon-minus-sign"></span></button> \
+											</div> \
+										</div></p> \
+									  ');
+				
+
+				$('#table_list_view tbody tr').live('click', function () {
+					var id = this.id;
+					
+					var index = jQuery.inArray(id, aSelected);
+					 
+					if ( index === -1 ) {
+						aSelected.push( id );
+						//alert(id);
+					} else {
+						aSelected.splice( index, 1 );
+					}
+					varRowCheckBox = $(this).find('input:checkbox');
+					varRowCheckBox.attr('checked', !varRowCheckBox.attr('checked'));
+				} );
+				
+				$('#btn_Create').click( function(){
+					//alert('create button clicked');
+				})
+				$('#btn_Delete').click( function(){
+					
+					
+					$('#deleteForm').submit()
+				})
+
+				
+				
 			} );
+			
+			
 			
 {% endblock %}
 
 
 {% block content %}
-
+<form action="{% url 'lawaccount:deleteAccounts' %}" id='deleteForm' method="post">{% csrf_token %}
 	<div >
-
- 
-   
-					<table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered" id="result">
-                        <thead>
-                            <tr>
-                                <th class="content-left">Name</th>
-                                <th class="content-left">Phone</th>
-								<th class="content-left">Mobile</th>
-                                <th class="content-left">Email</th>
-								<th class="content-left">Fax</th>
-                            </tr>
-                        </thead>
-                        
-						{% if account_list %}
-                        <tbody>
-							{% for account in account_list %}
-							<tr>
-								<td><i class="icon-user"></i><a href="{% url 'lawaccount:accountUpdate' account.id %}">{{ account.acc_name }}  </a></td>
-								<td>{{account.primary_phone}}</td>
-								<td>{{account.mobile}}</td>
-								<td>{{account.email}}</td>
-								<td>{{account.fax}}</td>
-							</tr>
-							{% endfor %}
-                            
-                        </tbody>
-						{% else %}
-							<tfoot>
-                            <tr>
-                                <td colspan="3">No client records</td>
-                            </tr>
-							</tfoot>
-						{% endif %}
-                    </table>
-	
 				<table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered" id="table_list_view">
                         <thead>
                             <tr>
-                                <th class="content-left">Name</th>
+								<th class="content-left">Name</th>
                                 <th class="content-left">Phone</th>
 								<th class="content-left">Mobile</th>
                                 <th class="content-left">Email</th>
 								<th class="content-left">Fax</th>
+								<th class="content-left">&nbsp;</th>
+								
                             </tr>
                         </thead>
 						<tbody>
 							<tr>
-								<td colspan="5" class="dataTables_empty">Loading data from server</td>
+								<td colspan="6" class="dataTables_empty">Loading data from server</td>
 							</tr>
 						</tbody>
 				</table>
 	
 
 	</div>
+	
+				
+					
+					</form>
 
 {% endblock %}
