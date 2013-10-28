@@ -16,7 +16,7 @@ DATABASES = {
         # The following settings are not used with sqlite3:
         'USER': 'oppo',
         'PASSWORD': 'oppo',
-        'HOST': '192.168.56.120',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+        'HOST': 'demodb', #'192.168.56.120',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
         'PORT': '1521',                      # Set to empty string for default.
     },
 
@@ -131,6 +131,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'lawaccount',
+    'bootstrap3',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (

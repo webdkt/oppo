@@ -57,6 +57,20 @@ class AccountList(generic.ListView):
 
 
 
+class AccountUpdate(generic.UpdateView):
+    model = Account
+    context_object_name = 'account'
+    template_name = CURRENT_APP + '/accountUpdate.html'
+
+class AccountCreate(generic.CreateView):
+    model = Account
+    template_name = CURRENT_APP + '/accountCreate.html'
+
+class AccountDelete(generic.DeleteView):
+    print >>sys.stderr, 'we are here!!!!!!!!!!'
+    model = Account
+    success_url = reverse_lazy(CURRENT_APP+':accountListView')
+
 class ClientListView(generic.ListView):
     template_name= CURRENT_APP + '/client.html'
     context_object_name = 'client_list'
@@ -77,6 +91,8 @@ class ClientCreate(generic.CreateView):
 
 class ClientUpdate(generic.UpdateView):
     model = Client
+    context_object_name = 'accountDetail'
+    template_name = CURRENT_APP + '/accountEdit.html'
 
 
 class ClientDelete(generic.DeleteView):
@@ -102,7 +118,9 @@ def deleteAccounts(request):
     ids = request.POST.getlist('selected_item')
     print >>sys.stderr, ids
     #print >>sys.stderr, id
-    return HttpResponseRedirect(reverse(CURRENT_APP+':login',current_app=CURRENT_APP))
+    Account.objects.filter(id__in = ids).delete()
+
+    return HttpResponseRedirect(reverse(CURRENT_APP+':accountListView',current_app=CURRENT_APP))
 
 
 
@@ -136,7 +154,12 @@ def getAccountListAction(request):
     cols = ['acc_name','primary_phone','mobile','email','fax','id']
     col_idx = range(len(cols))
     defaultPageSize = 10
+    if request.GET.has_key('iDisplayLength'):
+        defaultPageSize = int(request.GET['iDisplayLength'])
+
     startIndex = 0
+    if request.GET.has_key('iDisplayStart'):
+        startIndex = int(request.GET['iDisplayStart'])
     endIndex = startIndex + defaultPageSize
     modelClass = getattr(lawaccount.models, 'Account')
     q = modelClass.objects
@@ -172,7 +195,7 @@ def getAccountListAction(request):
     response_dict = {'sEcho':'','iTotalRecords':'','iTotalDisplayRecords':'', 'aaData':''}
     response_dict['sEcho']= request.GET['sEcho']
     response_dict['iTotalRecords']= total
-    response_dict['iTotalDisplayRecords'] = min(endIndex - startIndex, total)
+    response_dict['iTotalDisplayRecords'] = total
     aaData = [ dict(dict(zip(col_idx, [getattr(row,colname) for colname in cols] )).items() + {'DT_RowClass':'Account', 'DT_RowId': str(row.id)}.items()) for row in result ]
 
     #aaData =[ [ col_idx[cols.index(colname)] + ":" + str(getattr(row,colname)) for colname in cols] for row  in result ]
@@ -202,6 +225,8 @@ def getDataTable(request, modelName, cols, searchColName):
         print >>sys.stderr, 'addiing filter!'
         q = q.filter(acc_name__istartswith = searchString)
 
+    total = q.count()
+
     if request.GET.has_key('iSortCol_0'):
         for i in range(0,int(request.GET['iSortingCols'] )):
             if request.GET['bSortable_'+ request.GET['iSortCol_'+str(i)]] == 'true':
@@ -219,14 +244,15 @@ def getDataTable(request, modelName, cols, searchColName):
             endIndex = startIndex + endIndex
         else:
             endIndex = startIndex + defaultPageSize
-    total = q.count()
+
     result = q[startIndex:endIndex]
 
 
     response_dict = {'sEcho':'','iTotalRecords':'','iTotalDisplayRecords':'', 'aaData':''}
     response_dict['sEcho']= request.GET['sEcho']
     response_dict['iTotalRecords']= total
-    response_dict['iTotalDisplayRecords'] = min(endIndex - startIndex, total)
+    response_dict['iTotalDisplayRecords'] = total #min(endIndex - startIndex, total)
+    #response_dict['iDisplayStart']= startIndex
     aaData = [ dict(dict(zip(col_idx, [getattr(row,colname) for colname in cols] )).items() + {'DT_RowClass':modelName, 'DT_RowId': 'row_'+str(row.id)}.items()) for row in result ]
 
     #aaData =[ [ col_idx[cols.index(colname)] + ":" + str(getattr(row,colname)) for colname in cols] for row  in result ]

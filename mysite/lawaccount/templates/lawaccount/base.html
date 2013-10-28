@@ -39,11 +39,11 @@
   <!-- Collect the nav links, forms, and other content for toggling -->
   <div class="collapse navbar-collapse navbar-ex1-collapse">
     <ul class="nav navbar-nav">
-      <li class='dropdown {% if first_level_view_name == "Client" %} active {% endif %}'>
-		<a class="dropdown-toggle" data-toggle="dropdown" href="{% url 'lawaccount:clientListView' %}"><i class="icon-user"></i>Clients <b class="caret"></b></a>
+      <li class='dropdown {% if first_level_view_name == "Account" %} active {% endif %}'>
+		<a class="dropdown-toggle" data-toggle="dropdown" href="{% url 'lawaccount:accountListView' %}"><i class="icon-user"></i>Account <b class="caret"></b></a>
 		<ul class="dropdown-menu">
-          <li><a href="{% url 'lawaccount:clientListView' %}"><i class="icon-table"></i>List</a></li>
-          <li><a href="{% url 'lawaccount:client_add' %}"><i class="icon-plus"></i>Create new</a></li>
+          <li><a href="{% url 'lawaccount:accountListView' %}"><i class="icon-table"></i>List</a></li>
+          <li><a href=""><i class="icon-plus"></i>Create new</a></li>
           <li><a href="#"><i class="icon-print"></i>Print</a></li>
           <li><a href="#"><i class="icon-search"></i>Advanced Search</a></li>
           <li><a href="#"><i class="icon-bar-chart"></i>Reports</a></li>

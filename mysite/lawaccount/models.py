@@ -48,6 +48,9 @@ class Account(models.Model):
     def __unicode__(self):  # Python 3: def __str__(self):
         return self.acc_name
 
+    def get_absolute_url(self):
+        return reverse('lawaccount:accountListView')
+
 
 
 class Contact(models.Model):

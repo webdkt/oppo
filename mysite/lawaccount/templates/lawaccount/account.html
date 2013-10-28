@@ -30,7 +30,8 @@
 							// defaults to the column being worked with, in this case is the first
 							// Using `row[0]` is equivalent.
 							"mRender": function ( data, type, row ) {
-								return '<div class="checkbox"><label><input type="checkbox" name="selected_item" value="' + row[5] +'"> ' + data + '</label></div>';
+								//return '<div class="checkbox"><label><input type="checkbox" name="selected_item" value="' + row[5] +'"> ' + data + '</label></div>';
+								return '<input type="checkbox" name="selected_item" value="' + row[5] +'"> ' + data ;
 							},
 							"aTargets": [ 0 ]
 						}
@@ -42,7 +43,7 @@
 											<div class="btn-group"> \
 											  <button type="button" class="btn btn-default" id="btn_Create" title="Create new account"><span class="glyphicon glyphicon-plus"></span></button> \
 											  <button type="button" class="btn btn-default" id="btn_Edit" title="Edit selected account"><span class="glyphicon glyphicon-pencil"></span></button> \
-											  <button type="button" class="btn btn-default" id="btn_Delete" title="Delete selected account"><span class="glyphicon glyphicon-trash"></span></button> \
+											  <button type="button" class="btn btn-default" title="Delete selected account"  data-toggle="modal" href="#confirmDialog"><span class="glyphicon glyphicon-trash"></span></button> \
 											  <button type="button" class="btn btn-default" id="btn_SelectAll" title="Select All"><span class="glyphicon glyphicon-ok"></span></button> \
 											  <button type="button" class="btn btn-default" id="btn_InvertSelect" title="Invert Selection"><span class="glyphicon glyphicon-ok-sign"></span></button> \
 											  <button type="button" class="btn btn-default" id="btn_ClearSelect" title="Clear Selection"><span class="glyphicon glyphicon-minus-sign"></span></button> \
@@ -51,7 +52,7 @@
 									  ');
 				
 
-				$('#table_list_view tbody tr').live('click', function () {
+				$('#table_list_view tbody tr').live('click', function (e) {
 					var id = this.id;
 					
 					var index = jQuery.inArray(id, aSelected);
@@ -62,16 +63,25 @@
 					} else {
 						aSelected.splice( index, 1 );
 					}
-					varRowCheckBox = $(this).find('input:checkbox');
-					varRowCheckBox.attr('checked', !varRowCheckBox.attr('checked'));
+					if (e.target.type == "checkbox") {
+						e.isPropagationStopped()
+					}else{
+						varRowCheckBox = $(this).find('input:checkbox');
+						varRowCheckBox.attr('checked', !varRowCheckBox.attr('checked'));
+					}
+				} );
+				
+				$('#table_list_view tbody tr').live('dblclick', function () {
+					var id = this.id;
+					
+					window.location.href = "/lawaccount/account/"+id;
+					
 				} );
 				
 				$('#btn_Create').click( function(){
-					//alert('create button clicked');
+					window.location.href = "/lawaccount/account/new/";
 				})
 				$('#btn_Delete').click( function(){
-					
-					
 					$('#deleteForm').submit()
 				})
 
@@ -111,6 +121,23 @@
 	
 				
 					
-					</form>
+</form>
+ <div class="modal fade" id="confirmDialog" tabindex="-1" role="dialog" aria-labelledby="confirmDialog" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Delete Account</h4>
+        </div>
+        <div class="modal-body">
+          This will permanently delete selected account records, are you sure? 
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="btn_Delete"  >Yes, Continue</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+ </div>
 
 {% endblock %}
