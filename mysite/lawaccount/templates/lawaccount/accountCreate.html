@@ -1,5 +1,6 @@
 {% extends 'lawaccount/base.html' %}
 {% load bootstrap3 %}
+{% load bootstrap_filter %}
 
 {% block custom_script %}
 	$(document).ready(function() {
@@ -20,7 +21,7 @@
 <form action="{% url 'lawaccount:accountCreate' %}" id='actionForm' method="post" class="form-horizontal" role="form">{% csrf_token %}
     {{ form.non_field_errors }}
 	{% bootstrap_form form layout='horizontal'%}
-
+	{{ form.acc_name|bs3style }}
 
 
 <button type="button" class="btn btn-primary" id="submitButton">Create</button>
