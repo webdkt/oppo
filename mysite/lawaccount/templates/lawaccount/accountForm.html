@@ -1,3 +1,4 @@
+{%load bootstrap%}
 {% if form.non_field_errors %}
     <div class="alert alert-danger">
         <a class="close" data-dismiss="alert">&times;</a>
@@ -7,12 +8,11 @@
     </div>
 {% endif %}
 
-{% for field in form.hidden_fields %}
-    hidden!
-    {{ field }}
-{% endfor %}
+{{ form.acc_name | bs3field }}
+{{ form.acc_name | bs3field }}
 
-{% for field in form.visible_fields %}
-    {% include 'lawaccount/field.html' %}
-{% endfor %}
-
+<div class="row">
+  <div class="col-md-6">{{ form.acc_name | bs3field }}</div>
+  
+  <div class="col-md-6">{{ form.acc_name | bs3field }}</div>
+</div>
