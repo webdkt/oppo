@@ -1,0 +1,186 @@
+{% extends 'lawaccount/base.html' %}
+{% load staticfiles %}
+{% block custom_script_file %}
+	<script src="{% static 'lawaccount/js/custom.js' %}"></script>
+{% endblock %}
+
+{% block custom_script %}
+			
+			$(document).ready(function() {
+				var aSelected = [];
+				var oTable;
+				
+				
+				/* initialize table */
+				oTable = $('#table_list_view').dataTable({
+					"sDom": "<'toolbar'><'row'<'col-sm-12'<'pull-right'f><'pull-left'l>r<'clearfix'>>>t<'row'<'col-sm-12'<'pull-left'i><'pull-right'p><'clearfix'>>>",
+					"bProcessing": true,
+					"bServerSide": true,
+					"sAjaxSource": "{% url 'lawaccount:ajaxDataTable'  %}",
+					"fnServerParams": function ( aoData ) {
+						var searchCols = ["first_name","last_name"];
+						var cols = ["nric","first_name","mobile_phone1","office_email","employer","occupation","personal_email","last_name","id"];
+						aoData.push( { "name":"modelName","value":'Customer'});
+						aoData.push({ "name": "searchCols", "value":"first_name"});
+						aoData.push({ "name": "searchCols", "value":"last_name"});
+						aoData.push({ "name": "cols", "value":'nric'});
+						aoData.push({ "name": "cols", "value":'first_name'});
+						aoData.push({ "name": "cols", "value":'mobile_phone1'});
+						aoData.push({ "name": "cols", "value":'office_email'});
+						aoData.push({ "name": "cols", "value":'employer'});
+						aoData.push({ "name": "cols", "value":'occupation'});
+						aoData.push({ "name": "cols", "value":'personal_email'});
+						aoData.push({ "name": "cols", "value":'last_name'});
+						aoData.push({ "name": "cols", "value":'id'});
+						//aoData.push({ "name": "searchCols", "value":'["first_name","last_name"]'});
+						//aoData.push({name:"cols", "value":'["nric","first_name","mobile_phone1","office_email","employer","occupation","personal_email","last_name","id"]'});
+					},
+					"sPaginationType": "bs_normal",
+					"aoColumnDefs": [ 
+						{
+							// 复选框
+							// defaults to the column being worked with, in this case is the first
+							// Using `row[0]` is equivalent.
+							"mRender": function ( data, type, row ) {
+								return '<input type="checkbox" name="selected_item" value="' + row[8] +'"> ' + data ;  //row[8] is ID
+							},
+							"aTargets": [ 0 ]
+						},
+						{
+							//first_name + last_name
+							"mRender": function ( data, type, row ) {
+								return row[1] + ' ' + row[7];  //first + last name
+							},
+							"aTargets": [ 1 ]
+						},
+						{
+							//email
+							"mRender": function ( data, type, row ) {
+								if (!data) {
+									return data;
+								}
+								else {
+									return row[6]; //return personal email
+								}
+							},
+							"aTargets": [ 3 ]
+						}
+					]
+					
+				});
+				$("div.toolbar").html('<p> \
+										  <div class="btn-toolbar">  \
+											<div class="btn-group"> \
+											  <button type="button" class="btn btn-default" id="btn_Create" title="Create new customer"><span class="glyphicon glyphicon-plus"></span></button> \
+											  <button type="button" class="btn btn-default" id="btn_Edit" title="Edit selected customer"><span class="glyphicon glyphicon-pencil"></span></button> \
+											  <button type="button" class="btn btn-default" title="Delete selected customer"  data-toggle="modal" href="#confirmDialog"><span class="glyphicon glyphicon-trash"></span></button> \
+											  <button type="button" class="btn btn-default" id="btn_SelectAll" title="Select All"><span class="glyphicon glyphicon-ok"></span></button> \
+											  <button type="button" class="btn btn-default" id="btn_InvertSelect" title="Invert Selection"><span class="glyphicon glyphicon-ok-sign"></span></button> \
+											  <button type="button" class="btn btn-default" id="btn_ClearSelect" title="Clear Selection"><span class="glyphicon glyphicon-minus-sign"></span></button> \
+											</div> \
+										</div></p> \
+									  ');
+									  
+				$('.dataTable').dataTable().fnSetFilteringDelay();  //add delay to search
+
+				$('#table_list_view tbody tr').live('click', function (e) {
+					var id = this.id;
+					
+					var index = jQuery.inArray(id, aSelected);
+					 
+					if ( index === -1 ) {
+						aSelected.push( id );
+						//alert(id);
+					} else {
+						aSelected.splice( index, 1 );
+					}
+					if (e.target.type == "checkbox") {
+						e.isPropagationStopped()
+					}else{
+						varRowCheckBox = $(this).find('input:checkbox');
+						varRowCheckBox.attr('checked', !varRowCheckBox.attr('checked'));
+					}
+				} );
+				
+				$('#table_list_view tbody tr').live('dblclick', function () {
+					var id = this.id;
+					
+					window.location.href = "/lawaccount/customer/"+id;
+					
+				} );
+				
+				$('#btn_Create').click( function(){
+					window.location.href = "{% url 'lawaccount:genericCreate' model_name='Customer' %}";
+				});
+				$('#btn_Delete').click( function(){
+					$('#deleteForm').submit()
+				});
+
+				
+				
+			} );
+			
+			
+			
+{% endblock %}
+
+
+{% block content %}
+
+<div class="panel panel-default">
+	<ol class="breadcrumb">
+	  <li><a href="#">Home</a></li>
+	  <li class="active">Customer</li>
+	</ol>
+
+  <div class="panel-body">
+<form action="{% url 'lawaccount:genericBatchDelete' %}" id='deleteForm' method="post">{% csrf_token %}
+	<input type="hidden" name="model_name" value="Customer" />
+
+				<table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered" id="table_list_view">
+                        <thead>
+                            <tr>
+								<th class="content-left">NRIC</th>
+                                <th class="content-left">Name</th>
+								<th class="content-left">Mobile</th>
+                                <th class="content-left">Email</th>
+								<th class="content-left">Employer</th>
+								<th class="content-left">Occupation</th>
+								
+								
+                            </tr>
+                        </thead>
+						<tbody>
+							<tr>
+								<td colspan="6" class="dataTables_empty">Loading data from server</td>
+							</tr>
+						</tbody>
+				</table>
+	
+
+
+	
+				
+					
+</form>
+</div>
+</div>
+ <div class="modal fade" id="confirmDialog" tabindex="-1" role="dialog" aria-labelledby="confirmDialog" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Delete Customer</h4>
+        </div>
+        <div class="modal-body">
+          This will permanently delete selected customer records, are you sure? 
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="btn_Delete"  >Yes, Continue</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+ </div>
+
+{% endblock %}

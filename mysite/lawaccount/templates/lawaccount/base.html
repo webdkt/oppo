@@ -17,6 +17,7 @@
 		<link href="{% static 'lawaccount/css/frank.css' %}" rel="stylesheet" >
 		<script src="{% static 'lawaccount/js/datatables.js' %}"></script>
 		<script src="{% static 'lawaccount/js/jquery.cookie.js' %}"></script>
+		{% block custom_script_file %} {% endblock %}
 		<script type="text/javascript" charset="utf-8">
 			{% block custom_script %}{% endblock %}
 		</script>
@@ -85,9 +86,9 @@
 
       <!-- Main component for a primary marketing message or call to action -->
       
-	  <div class="container">
+
 		{% block content %}{% endblock %}
-	  </div>
+
 
 </body>
 </html>

@@ -15,6 +15,53 @@ ACC_TYPE = (
 )
 
 
+class Customer(models.Model):
+    NAME_PREFIX = (
+        ('Mr', 'Mr'),
+        ('Mrs', 'Mrs'),
+        ('Miss', 'Miss'),
+    )
+
+    nric = models.CharField(max_length=10,verbose_name='NRIC/FIN')
+    nationality = models.CharField(max_length=30,verbose_name='Nationality')
+    first_name = models.CharField(max_length=30,verbose_name='First Name')
+    last_name = models.CharField(max_length=30,verbose_name='Last Name')
+    middle_name = models.CharField(max_length=30,verbose_name='Middle Name',blank=True)
+    birth_date = models.DateField(max_length=30,verbose_name='Date of Birth',blank=True)
+    sex = models.CharField(max_length=1,verbose_name='Sex',blank=True,choices=SEX_CHOICES)
+    prefix = models.CharField(max_length=10,verbose_name='Title',blank=True,choices=NAME_PREFIX)
+    employer= models.CharField(max_length=50,verbose_name='Employer',blank=True)
+    occupation= models.CharField(max_length=50,verbose_name='Occupation',blank=True)
+    race= models.CharField(max_length=30,verbose_name='race',blank=True)
+    maritial_status= models.CharField(max_length=15,verbose_name='Maritial Status',blank=True)
+    home_address1= models.CharField(max_length=50,verbose_name='Home Address 1',blank=True)
+    home_address2= models.CharField(max_length=50,verbose_name='Home Address 2',blank=True)
+    home_city= models.CharField(max_length=50,verbose_name='City',blank=True)
+    home_country= models.CharField(max_length=50,verbose_name='Country',blank=True)
+    home_zip= models.CharField(max_length=10,verbose_name='ZIP',blank=True)
+    home_phone= models.CharField(max_length=30,verbose_name='Phone',blank=True)
+    office_address1= models.CharField(max_length=50,verbose_name='Office Address 1',blank=True)
+    office_address2= models.CharField(max_length=50,verbose_name='Office Address 2',blank=True)
+    office_city= models.CharField(max_length=50,verbose_name='City',blank=True)
+    office_country= models.CharField(max_length=50,verbose_name='Country',blank=True)
+    office_zip= models.CharField(max_length=10,verbose_name='ZIP',blank=True)
+    office_phone= models.CharField(max_length=30,verbose_name='Phone',blank=True)
+    mobile_phone1= models.CharField(max_length=30,verbose_name='Mobile',blank=True)
+    mobile_phone2= models.CharField(max_length=30,verbose_name='Alternative Mobile',blank=True)
+    personal_fax= models.CharField(max_length=30,verbose_name='FAX',blank=True)
+    personal_email= models.CharField(max_length=30,verbose_name='Personal Email',blank=True)
+    office_email= models.CharField(max_length=30,verbose_name='Work Email',blank=True)
+
+    class Meta:
+        db_table = tablePrefix + "customer"
+
+    def __unicode__(self):  # Python 3: def __str__(self):
+        return self.first_name + " " + self.last_name
+
+    def get_absolute_url(self):
+        return reverse('lawaccount:genericListView',kwargs={'model_name': 'customer'})
+
+
 
 
 class Account(models.Model):

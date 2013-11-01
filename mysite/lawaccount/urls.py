@@ -2,6 +2,7 @@ from django.conf.urls import patterns, url
 
 
 from lawaccount import views
+
 urlpatterns = patterns('',
     url(r'^$', views.ClientListView.as_view(), name='mainView'),
     url(r'^login/$', views.LoginView.as_view(), name='login'),
@@ -12,6 +13,11 @@ urlpatterns = patterns('',
     url(r'^account/(?P<pk>\d+)/$', views.AccountUpdate.as_view(), name='accountUpdate'),
     url(r'^account/new/$', views.AccountCreate.as_view(), name='accountCreate'),
     url(r'^account/delete/(?P<pk>\d+)/$', views.AccountDelete.as_view(), name='accountDelete'),
+    url(r'^view/list/(?P<model_name>\D+)/$' , views.genericListView, name='genericListView'),
+    url(r'^ajax/list/$' , views.getDataTable, name='ajaxDataTable'),
+    url(r'^edit/(?P<model_name>\D+)/(?P<pk>\d+)/$' , views.GenericEdit.as_view(), name='genericEdit'),
+    url(r'^create/(?P<model_name>\D+)/$' , views.GenericCreate.as_view(), name='genericCreate'),
+    url(r'^batchdelete/$' , views.genericBatchDelete, name='genericBatchDelete'),
     #url(r'^client/$', views.ClientListView.as_view(), name='clientListView'),
     #url(r'^client/add/$', views.ClientCreate.as_view(), name='client_add'),
     #url(r'^client/(?P<pk>\d+)/$', views.ClientUpdate.as_view(), name='client_update'),

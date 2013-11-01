@@ -12,11 +12,51 @@ from django.contrib.auth import authenticate, login
 import logging
 import sys
 
+from django.db.models import Q
+
 CURRENT_APP = 'lawaccount'
 logger = logging.getLogger(__name__)
 
 class LoginView(generic.TemplateView):
     template_name = CURRENT_APP +"/login.html"
+
+
+def genericListView(request, model_name):
+    template_name =CURRENT_APP + '/' + model_name.lower() + '_list.html'  #eg. if model_name= 'Account', tempalte name will be account_list.html
+    return render(request,template_name)
+
+
+class GenericEdit(generic.UpdateView):
+    model = None
+    context_object_name = 'object'
+    template_name = CURRENT_APP + '/' + model.__class__.__name__.lower() + '_edit.html'
+
+    def dispatch(self, *args, **kwargs):
+        model_name=self.request.REQUEST['model_name']
+        model = eval(model_name)
+        template_name = CURRENT_APP + '/' + model.__class__.__name__.lower() + '_edit.html'
+        return super(GenericEdit,self).dispatch(self,*args, **kwargs)
+
+class GenericCreate(generic.CreateView):
+
+    model = None
+    #template_name = CURRENT_APP + '/' + modelName + '_create.html'
+    def dispatch(self, *args, **kwargs):
+        model_name=kwargs['model_name']
+        self.model = getattr(lawaccount.models,model_name)
+        self.template_name = CURRENT_APP + '/' + model_name.lower() + '_create.html'
+        return generic.CreateView.dispatch(self,*args, **kwargs)
+
+
+class GenericDelete(generic.DeleteView):
+    print >>sys.stderr, 'we are here!!!!!!!!!!'
+
+    model = None
+    def dispatch(self, *args, **kwargs):
+        model_name=self.request.REQUEST['model_name']
+        model = eval(model_name)
+        success_url = reverse_lazy(CURRENT_APP+':deleteSuccess',kwargs={'model_name':model_name})
+        return super(GenericDelete,self).dispatch( *args, **kwargs)
 
 
 class AccountList(generic.ListView):
@@ -122,7 +162,17 @@ def deleteAccounts(request):
 
     return HttpResponseRedirect(reverse(CURRENT_APP+':accountListView',current_app=CURRENT_APP))
 
+def genericBatchDelete(request):
+    print >>sys.stderr, 'deleting batch'
+    #id = request.POST['deleteFormIDs']
+    ids = request.POST.getlist('selected_item')
+    print >>sys.stderr, ids
+    #print >>sys.stderr, id
+    model_name = request.POST['model_name']
+    obj_class = eval(model_name)
+    obj_class.objects.filter(id__in = ids).delete()
 
+    return HttpResponseRedirect(reverse(CURRENT_APP+':genericListView',current_app=CURRENT_APP, kwargs={'model_name': model_name}))
 
 
 
@@ -207,25 +257,50 @@ def getAccountListAction(request):
     return HttpResponse(json.dumps(response_dict), mimetype='application/json')
 
 
-'''
-通用查询方法，配合JQuery Datatables plugin, 来获取某个表。特定的表需要扩展这个Class，指定新的
-'''
-def getDataTable(request, modelName, cols, searchColName):
+def getDataTable(request):
+    '''
+        通用查询方法，配合JQuery Datatables plugin, 来获取某个表。初始化datatable时需要传入3个额外的参数：modelName, cols 和searchCols
+    '''
     #cols = ['acc_name','primary_phone','mobile','email','fax','id']
+    print >>sys.stderr, 'Generic Start!'
+    cols = request.GET.getlist('cols')
+    print >>sys.stderr, len(cols)
     col_idx = range(len(cols))
     defaultPageSize = 10
+    modelName = request.GET['modelName']
+    searchCols = request.GET.getlist('searchCols')
+    if request.GET.has_key('iDisplayLength'):
+        defaultPageSize = int(request.GET['iDisplayLength'])
+
     startIndex = 0
+    if request.GET.has_key('iDisplayStart'):
+        startIndex = int(request.GET['iDisplayStart'])
     endIndex = startIndex + defaultPageSize
     modelClass = getattr(lawaccount.models, modelName)
     q = modelClass.objects
-    #q = Account.objects.filter(headline__startswith="What")
 
-    if request.GET.has_key('sSearch'):
+    print >>sys.stderr, 'q genereated !'
+    if (request.GET.has_key('sSearch') & len(request.GET['sSearch'])>0):
+
         searchString =  request.GET['sSearch']
-        print >>sys.stderr, 'addiing filter!'
-        q = q.filter(acc_name__istartswith = searchString)
+        #searchColName = searchCols[0]
+        q_condition = None
+        #q_condition = [Q({'{0}__istartswith'.format(searchColName):searchString}) for searchColName in searchCols]
 
-    total = q.count()
+        for i in range(len(searchCols)):
+            searchColName = searchCols[i]
+            if (i ==0 ):
+                q_condition = Q({'{0}__istartswith'.format(searchColName):searchString})
+            else:
+                q_condition |= Q({'{0}__istartswith'.format(searchColName):searchString})
+            #print >>sys.stderr, searchColName + ':' + searchString
+            #q_condition |= Q({'{0}__istartswith'.format(searchColName):searchString},Q.OR)
+            #kwargs.update({'{0}__{1}'.format(searchColName, 'istartswith'): searchString })
+        print >>sys.stderr, q_condition
+            #q_condition = [Q(x) for x in kwargs]
+            #q_condition=q_condition.add(Q(kwargs),Q.OR)
+            #print >>sys.stderr, 'condition added'
+        q = q.filter(q_condition)
 
     if request.GET.has_key('iSortCol_0'):
         for i in range(0,int(request.GET['iSortingCols'] )):
@@ -244,16 +319,15 @@ def getDataTable(request, modelName, cols, searchColName):
             endIndex = startIndex + endIndex
         else:
             endIndex = startIndex + defaultPageSize
-
+    total = q.count()
     result = q[startIndex:endIndex]
 
 
     response_dict = {'sEcho':'','iTotalRecords':'','iTotalDisplayRecords':'', 'aaData':''}
     response_dict['sEcho']= request.GET['sEcho']
     response_dict['iTotalRecords']= total
-    response_dict['iTotalDisplayRecords'] = total #min(endIndex - startIndex, total)
-    #response_dict['iDisplayStart']= startIndex
-    aaData = [ dict(dict(zip(col_idx, [getattr(row,colname) for colname in cols] )).items() + {'DT_RowClass':modelName, 'DT_RowId': 'row_'+str(row.id)}.items()) for row in result ]
+    response_dict['iTotalDisplayRecords'] = total
+    aaData = [ dict(dict(zip(col_idx, [getattr(row,colname) for colname in cols] )).items() + {'DT_RowClass':modelName, 'DT_RowId': str(row.id)}.items()) for row in result ]
 
     #aaData =[ [ col_idx[cols.index(colname)] + ":" + str(getattr(row,colname)) for colname in cols] for row  in result ]
     #[]
