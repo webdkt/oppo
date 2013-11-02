@@ -5,14 +5,12 @@ from django.core.urlresolvers import reverse,reverse_lazy
 from django.views import generic
 import json
 import lawaccount.models
-from lawaccount.models import Client, Account
+from lawaccount.models import *
 from lawaccount.forms import ClientForm
 
 from django.contrib.auth import authenticate, login
 import logging
 import sys
-
-from django.db.models import Q
 
 CURRENT_APP = 'lawaccount'
 logger = logging.getLogger(__name__)
@@ -28,35 +26,39 @@ def genericListView(request, model_name):
 
 class GenericEdit(generic.UpdateView):
     model = None
-    context_object_name = 'object'
-    template_name = CURRENT_APP + '/' + model.__class__.__name__.lower() + '_edit.html'
+    #context_object_name = 'object'
+    template_name = None
 
-    def dispatch(self, *args, **kwargs):
-        model_name=self.request.REQUEST['model_name']
-        model = eval(model_name)
-        template_name = CURRENT_APP + '/' + model.__class__.__name__.lower() + '_edit.html'
-        return super(GenericEdit,self).dispatch(self,*args, **kwargs)
+    def dispatch(self,*args, **kwargs):
+        model_name=kwargs['model_name'].capitalize()
+        self.model = eval(model_name)
+        self.template_name = CURRENT_APP + '/' + model_name.lower() + '_edit.html'
+        self.context_object_name = model_name.lower()
+        return super(GenericEdit,self).dispatch(*args, **kwargs)
 
 class GenericCreate(generic.CreateView):
 
     model = None
+    template_name = None
     #template_name = CURRENT_APP + '/' + modelName + '_create.html'
     def dispatch(self, *args, **kwargs):
         model_name=kwargs['model_name']
         self.model = getattr(lawaccount.models,model_name)
         self.template_name = CURRENT_APP + '/' + model_name.lower() + '_create.html'
-        return generic.CreateView.dispatch(self,*args, **kwargs)
+        self.context_object_name = model_name.lower()
+        #return generic.CreateView.dispatch(request, *args, **kwargs)
+        return super(GenericCreate,self).dispatch(*args, **kwargs)
 
 
 class GenericDelete(generic.DeleteView):
     print >>sys.stderr, 'we are here!!!!!!!!!!'
 
     model = None
-    def dispatch(self, *args, **kwargs):
+    def dispatch(request, *args, **kwargs):
         model_name=self.request.REQUEST['model_name']
-        model = eval(model_name)
+        self.model = eval(model_name)
         success_url = reverse_lazy(CURRENT_APP+':deleteSuccess',kwargs={'model_name':model_name})
-        return super(GenericDelete,self).dispatch( *args, **kwargs)
+        return super(GenericDelete,self).dispatch(request, *args, **kwargs)
 
 
 class AccountList(generic.ListView):
@@ -262,7 +264,7 @@ def getDataTable(request):
         通用查询方法，配合JQuery Datatables plugin, 来获取某个表。初始化datatable时需要传入3个额外的参数：modelName, cols 和searchCols
     '''
     #cols = ['acc_name','primary_phone','mobile','email','fax','id']
-    print >>sys.stderr, 'Generic Start!'
+
     cols = request.GET.getlist('cols')
     print >>sys.stderr, len(cols)
     col_idx = range(len(cols))
@@ -276,31 +278,37 @@ def getDataTable(request):
     if request.GET.has_key('iDisplayStart'):
         startIndex = int(request.GET['iDisplayStart'])
     endIndex = startIndex + defaultPageSize
-    modelClass = getattr(lawaccount.models, modelName)
-    q = modelClass.objects
+    modelClass = eval(modelName.capitalize())#getattr(lawaccount.models, modelName)
+    q = modelClass.objects.all()
+    #print >>sys.stderr, q.query
+    query_condition = None
+    #print >>sys.stderr, 'q genereated !'
+    if (request.GET.has_key('sSearch') ):
+        if request.GET['sSearch']:
+            searchString =  request.GET['sSearch'].capitalize()
+            print >>sys.stderr, '======================searching: '+ searchString +'====================='
+            #searchColName = searchCols[0]
+            query_condition = ""
+            #query_condition = [Q({'{0}__istartswith'.format(searchColName):searchString}) for searchColName in searchCols]
 
-    print >>sys.stderr, 'q genereated !'
-    if (request.GET.has_key('sSearch') & len(request.GET['sSearch'])>0):
+            for i in range(len(searchCols)):
+                searchColName = searchCols[i]
+                if (i ==0 ):
+                    query_condition = searchColName + " LIKE '" + searchString +  "%%'"
+                else:
+                    query_condition += " OR " + searchColName + " LIKE '" + searchString +  "%%'"
+                #print >>sys.stderr, searchColName + ':' + searchString
+                #query_condition |= Q({'{0}__istartswith'.format(searchColName):searchString},Q.OR)
+                #kwargs.update({'{0}__{1}'.format(searchColName, 'istartswith'): searchString })
 
-        searchString =  request.GET['sSearch']
-        #searchColName = searchCols[0]
-        q_condition = None
-        #q_condition = [Q({'{0}__istartswith'.format(searchColName):searchString}) for searchColName in searchCols]
+            #print >>sys.stderr, query_condition
+                #query_condition = [Q(x) for x in kwargs]
+                #query_condition=query_condition.add(Q(kwargs),Q.OR)
+                #print >>sys.stderr, 'condition added'
+            q = q.extra(where=[query_condition])
+        else:
+            print >>sys.stderr, '======================Search String Empty: '+ request.GET['sSearch'] +'====================='
 
-        for i in range(len(searchCols)):
-            searchColName = searchCols[i]
-            if (i ==0 ):
-                q_condition = Q({'{0}__istartswith'.format(searchColName):searchString})
-            else:
-                q_condition |= Q({'{0}__istartswith'.format(searchColName):searchString})
-            #print >>sys.stderr, searchColName + ':' + searchString
-            #q_condition |= Q({'{0}__istartswith'.format(searchColName):searchString},Q.OR)
-            #kwargs.update({'{0}__{1}'.format(searchColName, 'istartswith'): searchString })
-        print >>sys.stderr, q_condition
-            #q_condition = [Q(x) for x in kwargs]
-            #q_condition=q_condition.add(Q(kwargs),Q.OR)
-            #print >>sys.stderr, 'condition added'
-        q = q.filter(q_condition)
 
     if request.GET.has_key('iSortCol_0'):
         for i in range(0,int(request.GET['iSortingCols'] )):
@@ -319,6 +327,7 @@ def getDataTable(request):
             endIndex = startIndex + endIndex
         else:
             endIndex = startIndex + defaultPageSize
+    #print >>sys.stderr, str(q.query)
     total = q.count()
     result = q[startIndex:endIndex]
 

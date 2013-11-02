@@ -20,7 +20,7 @@
 					"fnServerParams": function ( aoData ) {
 						var searchCols = ["first_name","last_name"];
 						var cols = ["nric","first_name","mobile_phone1","office_email","employer","occupation","personal_email","last_name","id"];
-						aoData.push( { "name":"modelName","value":'Customer'});
+						aoData.push({ "name":"modelName","value":'Customer'});
 						aoData.push({ "name": "searchCols", "value":"first_name"});
 						aoData.push({ "name": "searchCols", "value":"last_name"});
 						aoData.push({ "name": "cols", "value":'nric'});
@@ -32,8 +32,6 @@
 						aoData.push({ "name": "cols", "value":'personal_email'});
 						aoData.push({ "name": "cols", "value":'last_name'});
 						aoData.push({ "name": "cols", "value":'id'});
-						//aoData.push({ "name": "searchCols", "value":'["first_name","last_name"]'});
-						//aoData.push({name:"cols", "value":'["nric","first_name","mobile_phone1","office_email","employer","occupation","personal_email","last_name","id"]'});
 					},
 					"sPaginationType": "bs_normal",
 					"aoColumnDefs": [ 
@@ -56,7 +54,7 @@
 						{
 							//email
 							"mRender": function ( data, type, row ) {
-								if (!data) {
+								if (data) {
 									return data;
 								}
 								else {
@@ -104,9 +102,7 @@
 				
 				$('#table_list_view tbody tr').live('dblclick', function () {
 					var id = this.id;
-					
-					window.location.href = "/lawaccount/customer/"+id;
-					
+					window.location.href = "/lawaccount/edit/customer/"+id;
 				} );
 				
 				$('#btn_Create').click( function(){
@@ -115,9 +111,6 @@
 				$('#btn_Delete').click( function(){
 					$('#deleteForm').submit()
 				});
-
-				
-				
 			} );
 			
 			
@@ -133,9 +126,9 @@
 	  <li class="active">Customer</li>
 	</ol>
 
-  <div class="panel-body">
-<form action="{% url 'lawaccount:genericBatchDelete' %}" id='deleteForm' method="post">{% csrf_token %}
-	<input type="hidden" name="model_name" value="Customer" />
+	<div class="panel-body">
+		<form action="{% url 'lawaccount:genericBatchDelete' %}" id='deleteForm' method="post">{% csrf_token %}
+			<input type="hidden" name="model_name" value="Customer" />
 
 				<table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered" id="table_list_view">
                         <thead>
@@ -156,15 +149,10 @@
 							</tr>
 						</tbody>
 				</table>
-	
-
-
-	
-				
-					
-</form>
+		</form>
+	</div>
 </div>
-</div>
+<!-- 确认对话框 -->
  <div class="modal fade" id="confirmDialog" tabindex="-1" role="dialog" aria-labelledby="confirmDialog" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">

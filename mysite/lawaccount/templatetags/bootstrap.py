@@ -13,11 +13,16 @@ def bootstrap(element, template_name='form.html'):
     print >>sys.stderr, 'doing bootstrap:' + template_name
     return render(element, markup_classes, template_name)
 
+def bootstrap_default(element, template_name='form.html'):
+    markup_classes = {'label': '', 'value': '', 'single_value': ''}
+    print >>sys.stderr, 'doing bootstrap:' + template_name
+    return render(element, markup_classes, template_name)
+
 
 @register.filter
 def bs3field(element):
-    markup_classes = {'label': 'col-md-3', 'value': 'col-md-9', 'single_value': ''}
-    return render(element, markup_classes, 'form_field.html')
+    markup_classes = {'label': '', 'value': '', 'single_value': ''}
+    return render2(element, markup_classes, 'form_field.html')
 
 @register.filter
 def bootstrap_inline(element, template_name='form.html'):
@@ -63,6 +68,15 @@ def add_input_classes(field):
             field_classes += ' form-control'
             field.field.widget.attrs['class'] = field_classes
 
+
+def render2(element,markup_classes, template_name):
+    print >>sys.stderr, '========rendering field========== ' + element.label
+    template = get_template(TEMPLATE_PATH + template_name)
+    if not element.label.strip():
+        print >>sys.stderr, 'No Label'
+        markup_classes['label']='sr-only'
+    context = Context({'field': element, 'classes': markup_classes})
+    return template.render(context)
 
 def render(element, markup_classes, template_name):
     element_type = element.__class__.__name__.lower()

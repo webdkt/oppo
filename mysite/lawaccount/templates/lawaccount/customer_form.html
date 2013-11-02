@@ -17,18 +17,15 @@
         </a>
       </h4>
     </div>
-    <div id="collapseOne" class="panel-collapse collapse in">
+    <div id="collapseOne" class="collapse in">
       <div class="panel-body">
-	  <div class="row"><div class="col-md-4">{{ form.prefix | bs3field }}</div></div>
-	  <div class="row"><div class="col-md-4">{{ form.first_name | bs3field }}</div><div class="col-md-4">{{ form.middle_name | bs3field }}</div> <div class="col-md-4">{{ form.last_name | bs3field }}</div></div>
-	  <div class="row"><div class="col-md-4">{{ form.nric | bs3field }}</div> <div class="col-md-4">{{ form.nationality | bs3field }}</div><div class="col-md-4">{{ form.race | bs3field }}</div></div>
-	  <div class="row"><div class="col-md-4">{{ form.birth_date | bs3field }}</div> <div class="col-md-4">{{ form.maritial_status | bs3field }}</div><div class="col-md-4">{{ form.sex | bs3field }}</div></div>
-		
-		
-		
-		
-		
-      </div>
+		<div class='container'>
+		  <div class="row"><div class="col-md-2">{{ form.prefix | bs3field }}</div></div>
+		  <div class="row"><div class="col-md-3">{{ form.first_name | bs3field }}</div><div class="col-md-3 col-md-offset-1">{{ form.middle_name | bs3field }}</div> <div class="col-md-3 col-md-offset-1">{{ form.last_name | bs3field }}</div></div>
+		  <div class="row"><div class="col-md-3">{{ form.nric | bs3field }}</div> <div class="col-md-3 col-md-offset-1">{{ form.nationality | bs3field }}</div><div class="col-md-3 col-md-offset-1">{{ form.race | bs3field }}</div></div>
+		  <div class="row"><div class="col-md-3">{{ form.birth_date | bs3field }}</div> <div class="col-md-2 col-md-offset-1">{{ form.maritial_status | bs3field }}</div><div class="col-md-2 col-md-offset-1">{{ form.sex | bs3field }}</div></div>
+		</div>
+	  </div>
     </div>
   </div>
   <div class="panel panel-default">
@@ -39,9 +36,16 @@
         </a>
       </h4>
     </div>
-    <div id="collapseTwo" class="panel-collapse collapse">
-      <div class="panel-body">
-        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+    <div id="collapseTwo" class="container collapse ">
+      <div class="container">
+		<div class="row"><div class="col-md-3">{{ form.mobile_phone1 | bs3field }}</div><div class="col-md-3 col-md-offset-1">{{ form.mobile_phone2 | bs3field }}</div></div>
+		<div class="row"><div class="col-md-3">{{ form.home_phone | bs3field }}</div> </div>
+		<div class="row"><div class="col-md-3">{{ form.personal_email| bs3field }}</div><div class="col-md-3  col-md-offset-1">{{ form.personal_fax | bs3field }}</div> </div>
+		<div class="row"><div class="col-md-7">{{ form.home_address1 | bs3field }}</div> </div>
+		<div class="row"><div class="col-md-7">{{ form.home_address2 | bs3field }}</div> </div>
+		<div class="row"><div class="col-md-3">{{ form.home_city | bs3field }}</div></div>
+		<div class="row"><div class="col-md-3">{{ form.home_country | bs3field }}</div></div>
+		<div class="row"><div class="col-md-3">{{ form.home_zip | bs3field }}</div> </div>
       </div>
     </div>
   </div>
@@ -55,7 +59,21 @@
     </div>
     <div id="collapseThree" class="panel-collapse collapse">
       <div class="panel-body">
-        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+        <div class="container">
+			<div class="row">
+				<div class="col-md-3">{{ form.employer | bs3field }}</div>
+				<div class="col-md-3 col-md-offset-1">{{ form.occupation | bs3field }}</div>
+			</div>
+			<div class="row">
+				<div class="col-md-3">{{ form.office_phone | bs3field }}</div>
+				<div class="col-md-3 col-md-offset-1">{{ form.office_email | bs3field }}</div>
+			</div>
+			<div class="row"><div class="col-md-7">{{ form.office_address1 | bs3field }}</div> </div>
+			<div class="row"><div class="col-md-7">{{ form.office_address2 | bs3field }}</div> </div>
+			<div class="row"><div class="col-md-3">{{ form.office_city | bs3field }}</div></div>
+			<div class="row"><div class="col-md-3">{{ form.office_country | bs3field }}</div></div>
+			<div class="row"><div class="col-md-3">{{ form.office_zip | bs3field }}</div> </div>
+		</div>
       </div>
     </div>
   </div>
