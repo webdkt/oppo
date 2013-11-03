@@ -331,6 +331,29 @@ class Customer(models.Model):
     def get_absolute_url(self):
         return reverse('lawaccount:genericListView',kwargs={'model_name': 'customer'})
 
+class File(models.Model):
+    FILE_TYPE=(
+        ('Type A','Type A'),
+        ('Type B','Type B'),
+    )
+    customer = models.ForeignKey(Customer, verbose_name='Customer')
+    file_no = models.CharField(max_length=20, verbose_name='File #')
+    file_type = models.CharField(max_length=20, verbose_name='File Type',choices=FILE_TYPE)
+    secretary = models.CharField(max_length=40,verbose_name='Secretary')
+    start_date = models.DateField(verbose_name='Start Date')
+
+    class Meta:
+        db_table = tablePrefix + "customerfile"
+
+    def __unicode__(self):  # Python 3: def __str__(self):
+        return self.file_no
+
+    def get_absolute_url(self):
+        return reverse('lawaccount:genericListView',kwargs={'model_name': 'file'})
+
+
+
+
 
 
 

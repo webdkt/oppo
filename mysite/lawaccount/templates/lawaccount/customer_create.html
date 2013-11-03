@@ -7,7 +7,24 @@
 		$('#submitButton').click( function(){
 			
 			$('#actionForm').submit();
-		})
+		});
+		$('#cancelButton').click( function(){
+			
+			window.location.href = "{% url 'lawaccount:genericListView' model_name='Customer' %}";
+		});
+		
+		$('#id_nationality').addClass('chosen-select');
+		$('#id_nationality').chosen();
+		
+		$('#collapseTwo').on('shown.bs.collapse', function () {
+			$('#id_home_country').addClass('chosen-select');
+			$('#id_home_country').chosen();
+		});
+		$('#collapseThree').on('shown.bs.collapse', function () {
+			$('#id_office_country').addClass('chosen-select');
+			$('#id_office_country').chosen();
+		});
+		$( "#id_birth_date" ).datepicker({ dateFormat: "dd/mm/yy", showButtonPanel: true });
 	})
 {%endblock %}
 {% block content %}
@@ -24,9 +41,10 @@
 	
 	{{ form|bootstrap:'customer_form.html'}}
 
-
+</div>
+<div class="panel-footer">
 	<button type="button" class="btn btn-primary" id="submitButton">Create</button>
-	
+	<button type="button" class="btn btn-primary" id="cancelButton">Cancel</button>
   </form>
   </div>
 

@@ -70,7 +70,7 @@ def add_input_classes(field):
 
 
 def render2(element,markup_classes, template_name):
-    print >>sys.stderr, '========rendering field========== ' + element.label
+
     template = get_template(TEMPLATE_PATH + template_name)
     if not element.label.strip():
         print >>sys.stderr, 'No Label'

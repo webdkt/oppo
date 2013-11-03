@@ -1,0 +1,117 @@
+{% load staticfiles %}
+{#
+   Need to provide following context variable:
+   model_name:   model name
+   searchCols:  ["first_name","last_name"];   //field to search
+   cols: ["nric","first_name","mobile_phone1","office_email","employer","occupation","personal_email","last_name","id"] //select list 
+  
+
+   should be put inside like this:
+	$(document).ready(function() {
+		{% include "lawaccount/datatable_head.html" with model_name='abc'  searchCols='["col1"]' cols='["col1","col2","id"]' %}
+   
+	)}
+   
+   
+#}
+
+
+
+				var aSelected = [];
+				var oTable;
+				var idIndex = 0;
+				
+				/* initialize table */
+				oTable = $('#{{model_name}}_datatable').dataTable({
+					"sDom": "<'toolbar'><'row'<'col-sm-12'<'pull-right'f><'pull-left'l>r<'clearfix'>>>t<'row'<'col-sm-12'<'pull-left'i><'pull-right'p><'clearfix'>>>",
+					"bProcessing": true,
+					"bServerSide": true,
+					"sAjaxSource": "{% url 'lawaccount:ajaxDataTable'  %}",
+					"fnServerParams": function ( aoData ) {
+						var searchCols = {{searchCols}} ;//["first_name","last_name"];
+						var cols =   {{cols}}//..{#["nric","first_name","mobile_phone1","office_email","employer","occupation","personal_email","last_name","id"];#}
+						aoData.push({ "name":"modelName","value":{{ model_name}});
+						idIndex = cols.length-1; //id is always last
+						for (i=0;i<= idIndex ;i++){
+							aoData.push({"name":"searchCols","value":searchCols[i]});
+						}
+						for (i=0;i<= idIndex; i++){
+							aoData.push({"name":"cols","value":cols[i]});
+						}
+					},
+					"sPaginationType": "bs_normal",
+					"aoColumnDefs": [ 
+						{
+							// 复选框
+							// defaults to the column being worked with, in this case is the first
+							// Using `row[0]` is equivalent.
+							"mRender": function ( data, type, row ) {
+								return '<input type="checkbox" name="selected_item" value="' + row[idIndex] +'"> ' + data ;  //row[8] is ID
+							},
+							"aTargets": [ 0 ]
+						},
+						{{additional_mRender}}
+						
+					]
+					
+				});
+				$("div.toolbar").html('<p> \
+										  <div class="btn-toolbar">  \
+											<div class="btn-group"> \
+											  <button type="button" class="btn btn-default" id="btn_Create" title="Create new"><span class="glyphicon glyphicon-plus"></span></button> \
+											  <button type="button" class="btn btn-default" id="btn_Edit" title="Edit selected"><span class="glyphicon glyphicon-pencil"></span></button> \
+											  <button type="button" class="btn btn-default" title="Delete selected"  data-toggle="modal" href="#{{model_name}}_dt_form_confirmDialog"><span class="glyphicon glyphicon-trash"></span></button> \
+											  <button type="button" class="btn btn-default" id="btn_SelectAll" title="Select All"><span class="glyphicon glyphicon-ok"></span></button> \
+											  <button type="button" class="btn btn-default" id="btn_InvertSelect" title="Invert Selection"><span class="glyphicon glyphicon-ok-sign"></span></button> \
+											  <button type="button" class="btn btn-default" id="btn_ClearSelect" title="Clear Selection"><span class="glyphicon glyphicon-minus-sign"></span></button> \
+											</div> \
+										</div></p> \
+									  ');
+									  
+				$('.dataTable').dataTable().fnSetFilteringDelay();  //add delay to search
+
+				$('#{{model_name}}_datatable tbody tr').live('click', function (e) {
+					var id = this.id;
+					
+					var index = jQuery.inArray(id, aSelected);
+					 
+					if ( index === -1 ) {
+						aSelected.push( id );
+						//alert(id);
+					} else {
+						aSelected.splice( index, 1 );
+					}
+					if (e.target.type == "checkbox") {
+						e.isPropagationStopped()
+					}else{
+						varRowCheckBox = $(this).find('input:checkbox');
+						varRowCheckBox.attr('checked', !varRowCheckBox.attr('checked'));
+					}
+				} );
+				
+				$('#{{model_name}}_datatable tbody tr').live('dblclick', function () {
+					var id = this.id;
+					window.location.href = "/lawaccount/edit/customer/"+id;
+				} );
+				
+				$('#btn_Create').click( function(){
+					window.location.href = "{% url 'lawaccount:genericCreate' model_name=model_name %}";
+				});
+				$('#{{model_name}}_dt_form_continue').click( function(){
+					$('#{{model_name}}_dt_form').submit();
+				});
+				$('#btn_SelectAll').click( function(){
+					$('#{{model_name}}_dt_form input:checkbox').attr('checked',true);
+				
+				});
+				$('#btn_InvertSelect').click( function(){
+					$('#{{model_name}}_dt_form input:checkbox').each(function(){
+						$(this).attr('checked',! $(this).attr('checked'));
+					});
+				});
+				$('#btn_ClearSelect').click( function(){
+					$('#{{model_name}}_dt_form input:checkbox').attr('checked',false);
+				});
+
+			
+			

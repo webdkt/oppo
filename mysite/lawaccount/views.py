@@ -44,6 +44,8 @@ class GenericCreate(generic.CreateView):
     def dispatch(self, *args, **kwargs):
         model_name=kwargs['model_name']
         self.model = getattr(lawaccount.models,model_name)
+        if self.request.REQUEST.has_key('return_url'):
+            this.success_url = self.request.REQUEST['return_url']
         self.template_name = CURRENT_APP + '/' + model_name.lower() + '_create.html'
         self.context_object_name = model_name.lower()
         #return generic.CreateView.dispatch(request, *args, **kwargs)
@@ -170,7 +172,7 @@ def genericBatchDelete(request):
     ids = request.POST.getlist('selected_item')
     print >>sys.stderr, ids
     #print >>sys.stderr, id
-    model_name = request.POST['model_name']
+    model_name = request.POST['model_name'].capitalize()
     obj_class = eval(model_name)
     obj_class.objects.filter(id__in = ids).delete()
 

@@ -1,6 +1,12 @@
 {% extends 'lawaccount/base.html' %}
 {% load staticfiles %}
+{% block custom_css_file %} 
+	<link href="{% static 'lawaccount/css/frank.css' %}" rel="stylesheet" >
+{% endblock %}
+
 {% block custom_script_file %}
+	<script src="{% static 'lawaccount/js/jquery.dataTables.min.js' %}"></script>
+	<script src="{% static 'lawaccount/js/datatables.js' %}"></script>
 	<script src="{% static 'lawaccount/js/custom.js' %}"></script>
 {% endblock %}
 
@@ -109,7 +115,19 @@
 					window.location.href = "{% url 'lawaccount:genericCreate' model_name='Customer' %}";
 				});
 				$('#btn_Delete').click( function(){
-					$('#deleteForm').submit()
+					$('#deleteForm').submit();
+				});
+				$('#btn_SelectAll').click( function(){
+					$('#deleteForm input:checkbox').attr('checked',true);
+				
+				});
+				$('#btn_InvertSelect').click( function(){
+					$('#deleteForm input:checkbox').each(function(){
+						$(this).attr('checked',! $(this).attr('checked'));
+					});
+				});
+				$('#btn_ClearSelect').click( function(){
+					$('#deleteForm input:checkbox').attr('checked',false);
 				});
 			} );
 			
