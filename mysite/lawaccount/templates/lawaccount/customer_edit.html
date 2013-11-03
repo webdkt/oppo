@@ -37,7 +37,7 @@
 	<div class="panel-body">
 
     
-<form action="{% url 'lawaccount:genericEdit' model_name='Customer' pk=customer.id  %}" id='actionForm' method="post" class="form-horizontal" role="form">{% csrf_token %}
+	<form action="{% url 'lawaccount:genericEdit' model_name='Customer' pk=customer.id  %}" id='actionForm' method="post" class="form-horizontal" role="form">{% csrf_token %}
     {{ form.non_field_errors }}
 	
 	{{ form|bootstrap:'customer_form.html'}}
@@ -48,7 +48,9 @@
 	<button type="button" class="btn btn-primary" id="submitButton">Save</button>
 	<button type="button" class="btn btn-primary" id="cancelButton">Cancel</button>
 	</form>
-	</div>
+</div>
+
+
 
 </div>
 {% endblock %}
