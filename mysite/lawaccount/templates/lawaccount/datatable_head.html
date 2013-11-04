@@ -10,6 +10,14 @@
 		{% include "lawaccount/datatable_head.html" with model_name='abc'  searchCols='["col1"]' cols='["col1","col2","id"]' %}
    
 	)}
+	
+	OR, with customize mRender
+	$(document).ready(function() {
+		
+		{% include "lawaccount/datatable_head.html" with model_name='abc'  searchCols='["col1"]' cols='["col1","col2","id"]' additional_mRender='{ "mRender":function(data,type,row) {return data;},"aTargets":[3]},'%}
+								
+   
+	)}
 {% endcomment %}
 
 
@@ -28,7 +36,7 @@
 						var searchCols = {{searchCols}} ;//["first_name","last_name"];
 						var cols =   {{cols}}//..{#["nric","first_name","mobile_phone1","office_email","employer","occupation","personal_email","last_name","id"];#}
 						aoData.push({ "name":"modelName","value":"{{ model_name}}" });
-						
+						idIndex = cols.length-1;
 						for (i=0;i< searchCols.length ;i++){
 							aoData.push({"name":"searchCols","value":searchCols[i] });
 						}

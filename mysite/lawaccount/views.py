@@ -6,7 +6,9 @@ from django.views import generic
 import json
 import lawaccount.models
 from lawaccount.models import *
+from django.views.generic.base import TemplateView
 from lawaccount.forms import ClientForm
+from django.core.serializers.json import DjangoJSONEncoder
 
 from django.contrib.auth import authenticate, login
 import logging
@@ -34,7 +36,7 @@ class GenericEdit(generic.UpdateView):
         self.model = eval(model_name)
         self.template_name = CURRENT_APP + '/' + model_name.lower() + '_edit.html'
         self.context_object_name = model_name.lower()
-        print >>sys.stderr, 'Loading: ' + self.template_name
+        print >>sys.stderr, 'Generic Edit Loading: ' + self.template_name
         return super(GenericEdit,self).dispatch(*args, **kwargs)
 
 class GenericCreate(generic.CreateView):
@@ -47,7 +49,7 @@ class GenericCreate(generic.CreateView):
         self.model = getattr(lawaccount.models,model_name)
         if self.request.REQUEST.has_key('return_url'):
             this.success_url = self.request.REQUEST['return_url']
-        self.template_name = CURRENT_APP + '/' + model_name.lower() + '_create.html'
+        self.template_name = CURRENT_APP + '/' + model_name.lower() + '_edit.html'
         self.context_object_name = model_name.lower()
         #return generic.CreateView.dispatch(request, *args, **kwargs)
         return super(GenericCreate,self).dispatch(*args, **kwargs)
@@ -154,6 +156,9 @@ class ClientDetailView(generic.DetailView):
         """Return the last five published polls. """
         return Client.objects
 '''
+def ajaxLoadTemplate(request,**kwargs):
+    tempalte = CURRENT_APP + "/" + kwargs['template']
+    return render(request, tempalte, content_type="text/html")
 
 
 
@@ -342,5 +347,5 @@ def getDataTable(request):
     #     for row in result:
 #        aaData.append([row.acc_name,row.primary_phone, row.mobile,row.email,row.fax])
     response_dict['aaData']=aaData
-    print >> sys.stderr, json.dumps(response_dict)
-    return HttpResponse(json.dumps(response_dict), mimetype='application/json')
+    print >> sys.stderr, json.dumps(response_dict, cls=DjangoJSONEncoder)
+    return HttpResponse(json.dumps(response_dict, cls=DjangoJSONEncoder), mimetype='application/json')

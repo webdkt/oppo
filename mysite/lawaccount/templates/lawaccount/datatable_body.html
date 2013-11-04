@@ -13,7 +13,7 @@
 	
 	
 {% endcomment %}
-{% load staticfiles %}
+
 <div class="panel-body">
 		<form action="{{form_url }}" id='{{model_name}}_dt_form' method="post">{% csrf_token %}
 			<input type="hidden" name="model_name" value="{{model_name}}" />
@@ -37,7 +37,7 @@
 				</table>
 		</form>
 </div>
-<!-- 确认对话框 -->
+
  <div class="modal fade" id="{{model_name}}_dt_form_confirmDialog" tabindex="-1" role="dialog" aria-labelledby="confirmDialog" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -52,6 +52,6 @@
           <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
           <button type="button" class="btn btn-primary" id="{{model_name}}_dt_form_continue"  >Yes, Continue</button>
         </div>
-      </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
+      </div>
+    </div>
  </div>

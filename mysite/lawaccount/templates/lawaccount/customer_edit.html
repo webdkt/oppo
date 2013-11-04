@@ -9,12 +9,13 @@
 <!---where are the statics"-->
 {% block custom_script %}
 	$(document).ready(function() {
-		$('#submitButton').click( function(){
-			
-			$('#actionForm').submit();
+		var file_tab_initilaized = false;
+	
+	
+		$('#submitCustomerButton').click( function(){
+			$('#customerForm').submit();
 		});
-		$('#cancelButton').click( function(){
-			
+		$('#cancelCustomerButton').click( function(){
 			window.location.href = "{% url 'lawaccount:genericListView' model_name='Customer' %}";
 		});
 		
@@ -30,16 +31,27 @@
 		
 		$( "#id_birth_date" ).datepicker({ dateFormat: "dd/mm/yy", showButtonPanel: true, changeMonth: true, changeYear: true});  //set date picker
 		
-		{% include "lawaccount/datatable_head.html" with model_name='File'  searchCols='["file_no"]' cols='["file_no","file_type","start_date","id"]'  parent=customer parent_model="customer"%}
 		
 		//set tabs
-		$( "#tabs" ).tabs();
+		
+		$( "#tabs" ).tabs({
+			beforeActivate: function (event, ui) {
+				tabid = ui.newPanel.attr('id')
+				if (tabid == 'tabs-file' && !file_tab_initilaized){
+//					alert('first time initial');
+					file_tab_initilaized=true;
+					{% if customer.id %}
+						{% include "lawaccount/datatable_head.html" with model_name='File'  searchCols='["file_no"]' cols='["file_no","file_type","start_date","id"]'  parent=customer parent_model="customer"%}
+					{% endif %}
+				}
+			}
+		});
 		var count = $(".has-error").length;
 		if (count>0) {
 			var x =  $(".has-error").first()
 			var p = x.parents("[id^='tabs-']");
 			var tab_name = p.attr('id');
-			var li = $('#tabs li a[href="#'+ tab_name + '"]');
+			var li = $('#tabs li a[name="'+ tab_name + '"]');
 			var index = $('#tabs li a').index(li);
 			$( "#tabs" ).tabs("option", "active", index );
 		}
@@ -55,9 +67,15 @@
   </div>
 	<div class="panel-body"-->
 	<ol class="breadcrumb">
-	  <li><a href="#">Home</a></li>
-	  <li><a href="{% url 'lawaccount:genericListView' model_name='Customer' %}">Customer</a></li>
-	  <li class="active">{{customer.first_name}} {{customer.last_name}}</li>
+		<li><a href="#">Home</a></li>
+		<li><a href="{% url 'lawaccount:genericListView' model_name='Customer' %}">Customer</a></li>
+		<li class="active">
+			{% if customer.id %}
+				{{customer.first_name}} {{customer.last_name}}
+			{% else %}
+				New
+			{% endif %}
+		</li>
 	</ol>
 
  
@@ -69,9 +87,14 @@
 
 	<div class="container"> 
 			<div class="row">&nbsp;</div>
-			<button type="button" class="btn btn-primary" id="submitButton">Save</button>
-			<button type="button" class="btn btn-primary" id="cancelButton">Cancel</button>
-	
+			<button type="button" class="btn btn-primary" id="submitCustomerButton">
+				{% if customer.id %}
+					Save
+				{% else %}
+					Create
+				{% endif %}
+			</button>
+			<button type="button" class="btn btn-primary" id="cancelCustomerButton">Cancel</button>
 	</div>
 	
 	
