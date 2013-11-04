@@ -1,5 +1,4 @@
-{% load staticfiles %}
-{#
+{% comment %}
    Need to provide following context variable:
    model_name:   model name
    searchCols:  ["first_name","last_name"];   //field to search
@@ -11,9 +10,7 @@
 		{% include "lawaccount/datatable_head.html" with model_name='abc'  searchCols='["col1"]' cols='["col1","col2","id"]' %}
    
 	)}
-   
-   
-#}
+{% endcomment %}
 
 
 
@@ -30,14 +27,18 @@
 					"fnServerParams": function ( aoData ) {
 						var searchCols = {{searchCols}} ;//["first_name","last_name"];
 						var cols =   {{cols}}//..{#["nric","first_name","mobile_phone1","office_email","employer","occupation","personal_email","last_name","id"];#}
-						aoData.push({ "name":"modelName","value":{{ model_name}});
-						idIndex = cols.length-1; //id is always last
-						for (i=0;i<= idIndex ;i++){
-							aoData.push({"name":"searchCols","value":searchCols[i]});
+						aoData.push({ "name":"modelName","value":"{{ model_name}}" });
+						
+						for (i=0;i< searchCols.length ;i++){
+							aoData.push({"name":"searchCols","value":searchCols[i] });
 						}
-						for (i=0;i<= idIndex; i++){
+						for (i=0;i< cols.length; i++){
 							aoData.push({"name":"cols","value":cols[i]});
 						}
+						{% if parent %}
+							aoData.push({"name":"parent_model","value":"{{parent_model}}"});
+							aoData.push({"name":"parent_id","value":"{{parent.id}}"});
+						{% endif %}
 					},
 					"sPaginationType": "bs_normal",
 					"aoColumnDefs": [ 
@@ -113,5 +114,6 @@
 					$('#{{model_name}}_dt_form input:checkbox').attr('checked',false);
 				});
 
+				
 			
 			

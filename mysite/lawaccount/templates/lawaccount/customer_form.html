@@ -8,58 +8,40 @@
     </div>
 {% endif %}
 
-<div class="panel-group" id="accordion">
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      <h4 class="panel-title">
-        <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-          Personal Detail
-        </a>
-      </h4>
-    </div>
-    <div id="collapseOne" class="collapse in">
-      <div class="panel-body">
+ <div id="tabs">
+	<ul>
+		<li><a href="#tabs-1">Personal Detail</a></li>
+		<li><a href="#tabs-2">Contact Info</a></li>
+		<li><a href="#tabs-3">Work Detail</a></li>
+		{% if customer.id %}
+			<li><a href="#tabs-4">Files</a></li>
+		{% endif %}
+	</ul>  
+	<form action="{% url 'lawaccount:genericEdit' model_name='Customer' pk=customer.id  %}" id='actionForm' method="post" class="form-horizontal" role="form">{% csrf_token %}
+	<div id="tabs-1">
 		<div class='container'>
 		  <div class="row"><div class="col-md-2">{{ form.prefix | bs3field }}</div></div>
 		  <div class="row"><div class="col-md-3">{{ form.first_name | bs3field }}</div><div class="col-md-3 col-md-offset-1">{{ form.middle_name | bs3field }}</div> <div class="col-md-3 col-md-offset-1">{{ form.last_name | bs3field }}</div></div>
 		  <div class="row"><div class="col-md-3">{{ form.nric | bs3field }}</div> <div class="col-md-3 col-md-offset-1">{{ form.nationality | bs3field }}</div><div class="col-md-3 col-md-offset-1">{{ form.race | bs3field }}</div></div>
 		  <div class="row"><div class="col-md-3">{{ form.birth_date | bs3field }}</div> <div class="col-md-2 col-md-offset-1">{{ form.maritial_status | bs3field }}</div><div class="col-md-2 col-md-offset-1">{{ form.sex | bs3field }}</div></div>
 		</div>
-	  </div>
-    </div>
-  </div>
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      <h4 class="panel-title">
-        <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
-          Contact Detail 
-        </a>
-      </h4>
-    </div>
-    <div id="collapseTwo" class="container collapse ">
-      <div class="container">
-		<div class="row"><div class="col-md-3">{{ form.mobile_phone1 | bs3field }}</div><div class="col-md-3 col-md-offset-1">{{ form.mobile_phone2 | bs3field }}</div></div>
-		<div class="row"><div class="col-md-3">{{ form.home_phone | bs3field }}</div> </div>
-		<div class="row"><div class="col-md-3">{{ form.personal_email| bs3field }}</div><div class="col-md-3  col-md-offset-1">{{ form.personal_fax | bs3field }}</div> </div>
-		<div class="row"><div class="col-md-7">{{ form.home_address1 | bs3field }}</div> </div>
-		<div class="row"><div class="col-md-7">{{ form.home_address2 | bs3field }}</div> </div>
-		<div class="row"><div class="col-md-3">{{ form.home_city | bs3field }}</div></div>
-		<div class="row"><div class="col-md-3">{{ form.home_country | bs3field }}</div></div>
-		<div class="row"><div class="col-md-3">{{ form.home_zip | bs3field }}</div> </div>
-      </div>
-    </div>
-  </div>
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      <h4 class="panel-title">
-        <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
-          Work Detail
-        </a>
-      </h4>
-    </div>
-    <div id="collapseThree" class="panel-collapse collapse">
-      <div class="panel-body">
-        <div class="container">
+		
+	</div>
+	<div id="tabs-2">
+		<div class="container">
+			<div class="row"><div class="col-md-3">{{ form.mobile_phone1 | bs3field }}</div><div class="col-md-3 col-md-offset-1">{{ form.mobile_phone2 | bs3field }}</div></div>
+			<div class="row"><div class="col-md-3">{{ form.home_phone | bs3field }}</div> </div>
+			<div class="row"><div class="col-md-3">{{ form.personal_email| bs3field }}</div><div class="col-md-3  col-md-offset-1">{{ form.personal_fax | bs3field }}</div> </div>
+			<div class="row"><div class="col-md-7">{{ form.home_address1 | bs3field }}</div> </div>
+			<div class="row"><div class="col-md-7">{{ form.home_address2 | bs3field }}</div> </div>
+			<div class="row"><div class="col-md-3">{{ form.home_city | bs3field }}</div></div>
+			<div class="row"><div class="col-md-3">{{ form.home_country | bs3field }}</div></div>
+			<div class="row"><div class="col-md-3">{{ form.home_zip | bs3field }}</div> </div>
+		</div>
+		
+	</div>
+	<div id="tabs-3">
+		<div class="container">
 			<div class="row">
 				<div class="col-md-3">{{ form.employer | bs3field }}</div>
 				<div class="col-md-3 col-md-offset-1">{{ form.occupation | bs3field }}</div>
@@ -74,10 +56,32 @@
 			<div class="row"><div class="col-md-3">{{ form.office_country | bs3field }}</div></div>
 			<div class="row"><div class="col-md-3">{{ form.office_zip | bs3field }}</div> </div>
 		</div>
-      </div>
-    </div>
-  </div>
+		
+	</div>
+	</form>
+	{% if customer.id %}
+	<div id="tabs-4">
+		<div class="container">
+			{% url 'lawaccount:genericBatchDelete' as form_url %}
+			{% url 'lawaccount:genericEdit' model_name='Customer' pk=customer.id as success_url %}
+			{% include "lawaccount/datatable_body.html" with model_name='File'  form_url=form_url success_url=success_url table_head='["File #","File Type","Start Date"]'  %}
+		</div>
+	</div>
+	{% endif %}
 </div>
+
+<script>
+	
+	
+	
+</script>
+
+		
+		
+		
+
+
+
 
 
 

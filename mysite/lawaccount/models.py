@@ -316,7 +316,7 @@ class Customer(models.Model):
     office_country= models.CharField(max_length=50,verbose_name='Country',blank=True, choices=COUNTRY)
     office_zip= models.CharField(max_length=10,verbose_name='ZIP',blank=True)
     office_phone= models.CharField(max_length=30,verbose_name='Phone',blank=True)
-    mobile_phone1= models.CharField(max_length=30,verbose_name='Mobile',blank=True)
+    mobile_phone1= models.CharField(max_length=30,verbose_name='Mobile',blank=False)
     mobile_phone2= models.CharField(max_length=30,verbose_name='Alternative Mobile',blank=True)
     personal_fax= models.CharField(max_length=30,verbose_name='FAX',blank=True)
     personal_email= models.CharField(max_length=30,verbose_name='Personal Email',blank=True)

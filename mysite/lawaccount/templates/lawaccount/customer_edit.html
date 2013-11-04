@@ -1,7 +1,12 @@
 {% extends 'lawaccount/base.html' %}
 
 {% load bootstrap %}
-{% include "lawaccount/datatable_head_static.html" %}
+
+
+{% block custom_script_file %} 
+	{% include "lawaccount/datatable_head_static.html" %}
+{% endblock %}
+<!---where are the statics"-->
 {% block custom_script %}
 	$(document).ready(function() {
 		$('#submitButton').click( function(){
@@ -13,44 +18,73 @@
 			window.location.href = "{% url 'lawaccount:genericListView' model_name='Customer' %}";
 		});
 		
+		//set drop down list style for 3 columns
 		$('#id_nationality').addClass('chosen-select');
 		$('#id_nationality').chosen();
 		
-		$('#collapseTwo').on('shown.bs.collapse', function () {
-			$('#id_home_country').addClass('chosen-select');
-			$('#id_home_country').chosen();
-		});
-		$('#collapseThree').on('shown.bs.collapse', function () {
-			$('#id_office_country').addClass('chosen-select');
-			$('#id_office_country').chosen();
-		});
-		$( "#id_birth_date" ).datepicker({ dateFormat: "dd/mm/yy", showButtonPanel: true });
-		{% include "lawaccount/datatable_head.html" with model_name='file'  searchCols='["file_no"]' cols='["file_no","file_type","start_date","id"]' %}
+		$('#id_home_country').addClass('chosen-select');
+		$('#id_home_country').chosen();
+		
+		$('#id_office_country').addClass('chosen-select');
+		$('#id_office_country').chosen();
+		
+		$( "#id_birth_date" ).datepicker({ dateFormat: "dd/mm/yy", showButtonPanel: true, changeMonth: true, changeYear: true});  //set date picker
+		
+		{% include "lawaccount/datatable_head.html" with model_name='File'  searchCols='["file_no"]' cols='["file_no","file_type","start_date","id"]'  parent=customer parent_model="customer"%}
+		
+		//set tabs
+		$( "#tabs" ).tabs();
+		var count = $(".has-error").length;
+		if (count>0) {
+			var x =  $(".has-error").first()
+			var p = x.parents("[id^='tabs-']");
+			var tab_name = p.attr('id');
+			var li = $('#tabs li a[href="#'+ tab_name + '"]');
+			var index = $('#tabs li a').index(li);
+			$( "#tabs" ).tabs("option", "active", index );
+		}
+		
+		
 	})
 {%endblock %}
 {% block content %}
 
-<div class="panel panel-primary">
+<!--div class="panel panel-primary">
   <div class="panel-heading">
-    <h3 class="panel-title">Edit Customer</h3>
+    <h3 class="panel-title"> {{customer.first_name}} {{customer.last_name}}</h3>
   </div>
-	<div class="panel-body">
+	<div class="panel-body"-->
+	<ol class="breadcrumb">
+	  <li><a href="#">Home</a></li>
+	  <li><a href="{% url 'lawaccount:genericListView' model_name='Customer' %}">Customer</a></li>
+	  <li class="active">{{customer.first_name}} {{customer.last_name}}</li>
+	</ol>
 
-    
-	<form action="{% url 'lawaccount:genericEdit' model_name='Customer' pk=customer.id  %}" id='actionForm' method="post" class="form-horizontal" role="form">{% csrf_token %}
-    {{ form.non_field_errors }}
+ 
 	
-	{{ form|bootstrap:'customer_form.html'}}
+    {{ form.non_field_errors }}
+	{% include "lawaccount/customer_form.html" %}
+	{#{ form|bootstrap:'customer_form.html'}#}
 
-	<div class="container"> </div>
+
+	<div class="container"> 
+			<div class="row">&nbsp;</div>
+			<button type="button" class="btn btn-primary" id="submitButton">Save</button>
+			<button type="button" class="btn btn-primary" id="cancelButton">Cancel</button>
+	
 	</div>
+	
+	
+	
+
+
+	<!--/div>
 	<div class="panel-footer">
-	<button type="button" class="btn btn-primary" id="submitButton">Save</button>
-	<button type="button" class="btn btn-primary" id="cancelButton">Cancel</button>
-	</form>
+	
+	
 </div>
 
 
 
-</div>
+</div-->
 {% endblock %}

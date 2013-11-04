@@ -34,6 +34,7 @@ class GenericEdit(generic.UpdateView):
         self.model = eval(model_name)
         self.template_name = CURRENT_APP + '/' + model_name.lower() + '_edit.html'
         self.context_object_name = model_name.lower()
+        print >>sys.stderr, 'Loading: ' + self.template_name
         return super(GenericEdit,self).dispatch(*args, **kwargs)
 
 class GenericCreate(generic.CreateView):
@@ -283,7 +284,7 @@ def getDataTable(request):
     modelClass = eval(modelName.capitalize())#getattr(lawaccount.models, modelName)
     q = modelClass.objects.all()
     #print >>sys.stderr, q.query
-    query_condition = None
+    query_condition_list = []
     #print >>sys.stderr, 'q genereated !'
     if (request.GET.has_key('sSearch') ):
         if request.GET['sSearch']:
@@ -299,19 +300,15 @@ def getDataTable(request):
                     query_condition = searchColName + " LIKE '" + searchString +  "%%'"
                 else:
                     query_condition += " OR " + searchColName + " LIKE '" + searchString +  "%%'"
-                #print >>sys.stderr, searchColName + ':' + searchString
-                #query_condition |= Q({'{0}__istartswith'.format(searchColName):searchString},Q.OR)
-                #kwargs.update({'{0}__{1}'.format(searchColName, 'istartswith'): searchString })
+            query_condition_list = [query_condition]
 
-            #print >>sys.stderr, query_condition
-                #query_condition = [Q(x) for x in kwargs]
-                #query_condition=query_condition.add(Q(kwargs),Q.OR)
-                #print >>sys.stderr, 'condition added'
-            q = q.extra(where=[query_condition])
-        else:
-            print >>sys.stderr, '======================Search String Empty: '+ request.GET['sSearch'] +'====================='
+    if (request.GET.has_key('parent_model')):
+        q_cond = request.GET['parent_model']+'_id = ' +request.GET['parent_id']
+        query_condition_list.append(q_cond)
 
 
+    if len(query_condition_list)>0:
+        q = q.extra(where=query_condition_list)
     if request.GET.has_key('iSortCol_0'):
         for i in range(0,int(request.GET['iSortingCols'] )):
             if request.GET['bSortable_'+ request.GET['iSortCol_'+str(i)]] == 'true':
@@ -329,7 +326,7 @@ def getDataTable(request):
             endIndex = startIndex + endIndex
         else:
             endIndex = startIndex + defaultPageSize
-    #print >>sys.stderr, str(q.query)
+    print >>sys.stderr, str(q.query)
     total = q.count()
     result = q[startIndex:endIndex]
 

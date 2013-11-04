@@ -24,7 +24,18 @@
 			$('#id_office_country').addClass('chosen-select');
 			$('#id_office_country').chosen();
 		});
-		$( "#id_birth_date" ).datepicker({ dateFormat: "dd/mm/yy", showButtonPanel: true });
+		$( "#id_birth_date" ).datepicker({ dateFormat: "dd/mm/yy", showButtonPanel: true , changeMonth: true, changeYear: true});
+		
+		$( "#tabs" ).tabs();
+		var count = $(".has-error").length;
+		if (count>0) {
+			var x =  $(".has-error").first()
+			var p = x.parents("[id^='tabs-']");
+			var tab_name = p.attr('id');
+			var li = $('#tabs li a[href="#'+ tab_name + '"]');
+			var index = $('#tabs li a').index(li);
+			$( "#tabs" ).tabs("option", "active", index );
+		}
 	})
 {%endblock %}
 {% block content %}

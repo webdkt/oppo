@@ -70,11 +70,12 @@ def add_input_classes(field):
 
 
 def render2(element,markup_classes, template_name):
-
+    add_input_classes(element)
     template = get_template(TEMPLATE_PATH + template_name)
     if not element.label.strip():
         print >>sys.stderr, 'No Label'
         markup_classes['label']='sr-only'
+
     context = Context({'field': element, 'classes': markup_classes})
     return template.render(context)
 
