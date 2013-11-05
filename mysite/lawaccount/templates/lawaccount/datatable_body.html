@@ -13,7 +13,7 @@
 	
 	
 {% endcomment %}
-
+{%load dynotags%}
 <div class="panel-body">
 		<form action="{{form_url }}" id='{{model_name}}_dt_form' method="post">{% csrf_token %}
 			<input type="hidden" name="model_name" value="{{model_name}}" />
@@ -51,6 +51,24 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
           <button type="button" class="btn btn-primary" id="{{model_name}}_dt_form_continue"  >Yes, Continue</button>
+        </div>
+      </div>
+    </div>
+ </div>
+ 
+ <div class="modal fade" id="{{model_name}}_dt_add_new_dialog" tabindex="-1" role="dialog" aria-labelledby="confirmDialog" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Create new {{model_name}}</h4>
+        </div>
+        <div class="modal-body">
+          <div id="new_add_form_dynamic"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="{{model_name}}_dt_add_new_form_continue"  >Yes, Continue</button>
         </div>
       </div>
     </div>

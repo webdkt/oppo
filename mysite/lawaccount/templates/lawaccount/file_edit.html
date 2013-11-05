@@ -38,12 +38,11 @@
 			beforeActivate: function (event, ui) {
 				tabid = ui.newPanel.attr('id')
 				if (tabid == 'tabs-file' && !file_tab_initilaized){
-					//This is to initialize tab for Files, init tables, init javascripts
+//					alert('first time initial');
 					file_tab_initilaized=true;
 					{% if customer.id %}
 						{% include "lawaccount/datatable_head.html" with model_name='File'  searchCols='["file_no"]' cols='["file_no","file_type","start_date","id"]'  parent=customer parent_model="customer"%}
 					{% endif %}
-					
 				}
 			}
 		});

@@ -1,0 +1,36 @@
+
+{% load bootstrap %}
+
+
+
+<!---where are the statics"-->
+
+ 
+	
+    {{ form.non_field_errors }}
+	
+
+	<form action="{% url 'lawaccount:createFile' %}" id='FileAjaxForm' method="post" class="form-horizontal" role="form">
+	{% csrf_token %}
+	<div class='container'>
+		<div class="row"><div class="col-md-2">{{ form.customer_id | bs3field }}</div></div>
+		<div class="row"><div class="col-md-2">{{ form.file_no | bs3field }}</div></div>
+		<div class="row"><div class="col-md-3">{{ form.file_type | bs3field }}</div></div>
+		<div class="row">
+			<div class="col-md-3">{{ form.start_date | bs3field }}</div> 
+			<script>
+				$( "#id_start_date" ).datepicker({ dateFormat: "yy-mm-dd", showButtonPanel: true, changeMonth: true, changeYear: true}); 
+			</script>
+		</div>
+	</div>
+	</form>
+	<div id="error_info"></div>
+	<!--/div>
+	<div class="panel-footer">
+	
+	
+</div>
+
+
+
+</div-->

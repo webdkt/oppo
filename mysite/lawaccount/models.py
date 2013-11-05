@@ -336,10 +336,10 @@ class File(models.Model):
         ('Type A','Type A'),
         ('Type B','Type B'),
     )
-    customer = models.ForeignKey(Customer, verbose_name='Customer')
+    customer_id = models.IntegerField(max_length=30, verbose_name='Customer')
     file_no = models.CharField(max_length=20, verbose_name='File #')
     file_type = models.CharField(max_length=20, verbose_name='File Type',choices=FILE_TYPE)
-    secretary = models.CharField(max_length=40,verbose_name='Secretary')
+    secretary = models.CharField(max_length=40,verbose_name='Secretary', blank=True)
     start_date = models.DateField(verbose_name='Start Date')
 
     class Meta:

@@ -132,7 +132,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'lawaccount',
-    'bootstrap3',
+
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (

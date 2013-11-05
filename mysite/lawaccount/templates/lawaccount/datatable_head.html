@@ -7,14 +7,14 @@
 
    should be put inside like this:
 	$(document).ready(function() {
-		{% include "lawaccount/datatable_head.html" with model_name='abc'  searchCols='["col1"]' cols='["col1","col2","id"]' %}
+		{% include "lawaccount/datatable_head.html" with model_name='abc'  searchCols='["col1"]' cols='["col1","col2","id"]' parent=customer parent_model="customer" %}
    
 	)}
 	
 	OR, with customize mRender
 	$(document).ready(function() {
 		
-		{% include "lawaccount/datatable_head.html" with model_name='abc'  searchCols='["col1"]' cols='["col1","col2","id"]' additional_mRender='{ "mRender":function(data,type,row) {return data;},"aTargets":[3]},'%}
+		{% include "lawaccount/datatable_head.html" with model_name='abc'  searchCols='["col1"]' cols='["col1","col2","id"]' parent=customer parent_model="customer" additional_mRender='{ "mRender":function(data,type,row) {return data;},"aTargets":[3]},'%}
 								
    
 	)}
@@ -67,9 +67,9 @@
 				$("div.toolbar").html('<p> \
 										  <div class="btn-toolbar">  \
 											<div class="btn-group"> \
-											  <button type="button" class="btn btn-default" id="btn_Create" title="Create new"><span class="glyphicon glyphicon-plus"></span></button> \
+											  <button type="button" class="btn btn-default" id="btn_Create" title="Create new" data-toggle="modal" data-target="#{{model_name}}_dt_add_new_dialog"><span class="glyphicon glyphicon-plus"></span></button> \
 											  <button type="button" class="btn btn-default" id="btn_Edit" title="Edit selected"><span class="glyphicon glyphicon-pencil"></span></button> \
-											  <button type="button" class="btn btn-default" title="Delete selected"  data-toggle="modal" href="#{{model_name}}_dt_form_confirmDialog"><span class="glyphicon glyphicon-trash"></span></button> \
+											  <button type="button" class="btn btn-default" title="Delete selected"  data-toggle="modal" data-target="#{{model_name}}_dt_form_confirmDialog"><span class="glyphicon glyphicon-trash"></span></button> \
 											  <button type="button" class="btn btn-default" id="btn_SelectAll" title="Select All"><span class="glyphicon glyphicon-ok"></span></button> \
 											  <button type="button" class="btn btn-default" id="btn_InvertSelect" title="Invert Selection"><span class="glyphicon glyphicon-ok-sign"></span></button> \
 											  <button type="button" class="btn btn-default" id="btn_ClearSelect" title="Clear Selection"><span class="glyphicon glyphicon-minus-sign"></span></button> \
@@ -103,12 +103,73 @@
 					window.location.href = "/lawaccount/edit/customer/"+id;
 				} );
 				
-				$('#btn_Create').click( function(){
-					window.location.href = "{% url 'lawaccount:genericCreate' model_name=model_name %}";
+				//$('#{{model_name}}_dt_add_new_dialog').click( function(){
+					//window.location.href = "{% url 'lawaccount:genericCreate' model_name=model_name %}";
+				//});
+				$('#{{model_name}}_dt_form_continue').click( function(e){  //this is for delete button
+					var postData = $("#{{model_name}}_dt_form").serializeArray();
+					var formURL = $("#{{model_name}}_dt_form").attr("action");
+					$.ajax(
+					{
+						url : formURL,
+						type: "POST",
+						data : postData,
+						crossDomain: false,
+						success:function(data, textStatus, jqXHR)
+						{
+							oTable.fnDraw();
+							$('#{{model_name}}_dt_form_confirmDialog').modal('hide')
+							//data: return data from server
+						},
+						error: function(jqXHR, textStatus, errorThrown)
+						{
+							alert(textStatus);
+							alert(errorThrown);
+							oTable.fnDraw();
+							//if fails     
+						}
+					});
+					e.preventDefault(); //STOP default action
 				});
-				$('#{{model_name}}_dt_form_continue').click( function(){
-					$('#{{model_name}}_dt_form').submit();
+				$('#{{model_name}}_dt_add_new_form_continue').click( function(e){  //this is for add new record form, Create button
+					$("#id_{{parent_model.lower}}_id").removeAttr('disabled');
+					$("#id_{{parent_model.lower}}_id").attr('value','{{parent.id}}');
+					var postData = $("#{{model_name}}AjaxForm").serializeArray();
+					var formURL = $("#{{model_name}}AjaxForm").attr("action");
+					$.ajax(
+					{
+						url : formURL,
+						type: "POST",
+						data : postData,
+						crossDomain: false,
+						success:function(data, textStatus, jqXHR)
+						{
+							oTable.fnDraw();
+							$('#{{model_name}}_dt_add_new_dialog').modal('hide'); //close model window
+							//data: return data from server
+						},
+						error: function(jqXHR, textStatus, errorThrown)
+						{
+							//alert(textStatus);
+							alert(errorThrown);
+							//$("#id_{{parent_model.lower}}_id").attr('disabled','disabled');
+							//$("#error_info").html(errorThrown);
+							//oTable.fnDraw();
+							//if fails     
+						}
+					});
+					e.preventDefault(); //STOP default action
 				});
+				$('#{{model_name}}_dt_add_new_dialog').on('show.bs.modal', function () {  //when open create new window, we dynamically load content
+					$.get( "/lawaccount/create/{{model_name}}/", function( data ) {
+						$( "#new_add_form_dynamic" ).html( data );
+						$("#id_{{parent_model.lower}}_id").attr('value','{{parent.first_name}} {{parent.last_name}} ');
+						$("#id_{{parent_model.lower}}_id").attr('disabled','disabled');
+					});
+				})
+
+				
+				
 				$('#btn_SelectAll').click( function(){
 					$('#{{model_name}}_dt_form input:checkbox').attr('checked',true);
 				
@@ -121,7 +182,7 @@
 				$('#btn_ClearSelect').click( function(){
 					$('#{{model_name}}_dt_form input:checkbox').attr('checked',false);
 				});
-
+				
 				
 			
 			

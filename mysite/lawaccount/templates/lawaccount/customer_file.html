@@ -1,7 +1,11 @@
 
-{% url 'lawaccount:genericBatchDelete' as form_url %}
+{% url 'lawaccount:genericBatchDeleteAjax' as form_url %}
 {% url 'lawaccount:genericEdit' model_name='Customer' pk=customer.id as success_url %}
-{% include "lawaccount/datatable_body.html" with model_name='File'  form_url=form_url success_url=success_url table_head='["File #","File Type","Start Date"]'  %}
+{% include "lawaccount/datatable_body.html" with model_name='File'  form_url=form_url success_url=success_url table_head='["File #","File Type","Start Date"]'  parent_model='Customer' parent_id=customer.id %}
+
+
+
+
 
 <div>
 1111111111==========

@@ -2,14 +2,14 @@
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse,reverse_lazy
-from django.views import generic
 import json
 import lawaccount.models
 from lawaccount.models import *
 from django.views.generic.base import TemplateView
 from lawaccount.forms import ClientForm
 from django.core.serializers.json import DjangoJSONEncoder
-
+from django.forms.models import modelform_factory
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.auth import authenticate, login
 import logging
 import sys
@@ -17,7 +17,7 @@ import sys
 CURRENT_APP = 'lawaccount'
 logger = logging.getLogger(__name__)
 
-class LoginView(generic.TemplateView):
+class LoginView(TemplateView):
     template_name = CURRENT_APP +"/login.html"
 
 
@@ -26,7 +26,47 @@ def genericListView(request, model_name):
     return render(request,template_name)
 
 
-class GenericEdit(generic.UpdateView):
+class AjaxableResponseMixin(object):
+    """
+    Mixin to add AJAX support to a form.
+    Must be used with an object-based FormView (e.g. CreateView)
+    """
+    def render_to_json_response(self, context, **response_kwargs):
+        data = json.dumps(context)
+        response_kwargs['content_type'] = 'application/json'
+        print >> sys.stderr , context
+        return HttpResponse(data, **response_kwargs)
+
+    def form_invalid(self, form):
+        response = super(AjaxableResponseMixin, self).form_invalid(form)
+        if self.request.is_ajax():
+            return self.render_to_json_response(form.errors, status=400)
+
+        else:
+            return response
+
+    def form_valid(self, form):
+        # We make sure to call the parent's form_valid() method because
+        # it might do some processing (in the case of CreateView, it will
+        # call form.save() for example).
+        print >> sys.stderr , "========================FORM is valid"
+        response = super(AjaxableResponseMixin, self).form_valid(form)
+        if self.request.is_ajax():
+            data = {
+                'pk': self.object.pk,
+            }
+            return self.render_to_json_response(data)
+        else:
+            return response
+
+
+class FileCreate(AjaxableResponseMixin,CreateView):
+    model = File
+    template_name = CURRENT_APP + '/file_create_ajax.html'
+
+
+
+class GenericEdit(UpdateView,AjaxableResponseMixin):
     model = None
     #context_object_name = 'object'
     template_name = None
@@ -39,23 +79,38 @@ class GenericEdit(generic.UpdateView):
         print >>sys.stderr, 'Generic Edit Loading: ' + self.template_name
         return super(GenericEdit,self).dispatch(*args, **kwargs)
 
-class GenericCreate(generic.CreateView):
-
+class GenericCreate(CreateView):
     model = None
     template_name = None
     #template_name = CURRENT_APP + '/' + modelName + '_create.html'
     def dispatch(self, *args, **kwargs):
         model_name=kwargs['model_name']
         self.model = getattr(lawaccount.models,model_name)
-        if self.request.REQUEST.has_key('return_url'):
-            this.success_url = self.request.REQUEST['return_url']
+        if args[0].REQUEST.has_key('return_url'):
+            this.success_url = args[0].REQUEST['return_url']
         self.template_name = CURRENT_APP + '/' + model_name.lower() + '_edit.html'
         self.context_object_name = model_name.lower()
-        #return generic.CreateView.dispatch(request, *args, **kwargs)
+        #return CreateView.dispatch(request, *args, **kwargs)
         return super(GenericCreate,self).dispatch(*args, **kwargs)
 
+class GenericCreateAjax(AjaxableResponseMixin, CreateView):
+    model = None
+    template_name = None
+    #template_name = CURRENT_APP + '/' + modelName + '_create.html'
+    def dispatch(self, *args, **kwargs):
+        model_name=kwargs['model_name']
+        self.model = getattr(lawaccount.models,model_name)
+        print >> sys.stderr , "GenericCreateAjax is ajax:========================" + str(args[0].is_ajax())
+        if args[0].REQUEST.has_key('return_url'):
+            this.success_url = args[0].REQUEST['return_url']
+        self.template_name = CURRENT_APP + '/' + model_name.lower() + '_create_ajax.html'
+        self.context_object_name = model_name.lower()
+        #return CreateView.dispatch(request, *args, **kwargs)
+        return super(GenericCreateAjax,self).dispatch(*args, **kwargs)
 
-class GenericDelete(generic.DeleteView):
+
+
+class GenericDelete(DeleteView):
     print >>sys.stderr, 'we are here!!!!!!!!!!'
 
     model = None
@@ -66,7 +121,11 @@ class GenericDelete(generic.DeleteView):
         return super(GenericDelete,self).dispatch(request, *args, **kwargs)
 
 
-class AccountList(generic.ListView):
+
+
+
+'''
+class AccountList(ListView):
     template_name = CURRENT_APP + '/account.html'
     context_object_name = 'account_list'
     model = Account
@@ -78,7 +137,7 @@ class AccountList(generic.ListView):
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
-        context = super(generic.ListView,self).get_context_data(**kwargs)
+        context = super(ListView,self).get_context_data(**kwargs)
         # (PublisherDetail, self).get_context_data(**kwargs)
         # Add in a QuerySet of all the books
         self.request.session['first_level_view_name'] = 'Account'
@@ -100,56 +159,8 @@ class AccountList(generic.ListView):
         data = json.dumps(context)
         response_kwargs['content_type'] = 'application/json'
         return HttpResponse(data, **response_kwargs)
+'''
 
-
-
-
-class AccountUpdate(generic.UpdateView):
-    model = Account
-    context_object_name = 'account'
-    template_name = CURRENT_APP + '/accountUpdate.html'
-
-class AccountCreate(generic.CreateView):
-    model = Account
-    template_name = CURRENT_APP + '/accountCreate.html'
-
-class AccountDelete(generic.DeleteView):
-    print >>sys.stderr, 'we are here!!!!!!!!!!'
-    model = Account
-    success_url = reverse_lazy(CURRENT_APP+':accountListView')
-
-class ClientListView(generic.ListView):
-    template_name= CURRENT_APP + '/client.html'
-    context_object_name = 'client_list'
-    model = Client
-
-    def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
-        context = super(generic.ListView,self).get_context_data(**kwargs)
-        # (PublisherDetail, self).get_context_data(**kwargs)
-        # Add in a QuerySet of all the books
-        context['first_level_view_name'] = 'Client'
-        return context
-
-
-class ClientCreate(generic.CreateView):
-    model = Client
-    template_name = CURRENT_APP + '/client_create_form.html'
-
-class ClientUpdate(generic.UpdateView):
-    model = Client
-    context_object_name = 'accountDetail'
-    template_name = CURRENT_APP + '/accountEdit.html'
-
-
-class ClientDelete(generic.DeleteView):
-    model = Client
-    success_url = reverse_lazy('clientListView')
-
-class ClientDetailView(generic.DetailView):
-    template_name= CURRENT_APP + '/account_detail.html'
-    context_object_name = 'client'
-    model = Client
 
 
 '''    def get_queryset(self):
@@ -162,27 +173,38 @@ def ajaxLoadTemplate(request,**kwargs):
 
 
 
-def deleteAccounts(request):
-    print >>sys.stderr, 'deleting accounts'
-    #id = request.POST['deleteFormIDs']
-    ids = request.POST.getlist('selected_item')
-    print >>sys.stderr, ids
-    #print >>sys.stderr, id
-    Account.objects.filter(id__in = ids).delete()
 
-    return HttpResponseRedirect(reverse(CURRENT_APP+':accountListView',current_app=CURRENT_APP))
+def genericBatchDeleteAjax(request):
+    print >>sys.stderr, 'deleting batch AJAX: is ajax:' + str(request.is_ajax())
+    ids = request.POST.getlist('selected_item')
+    model_name = request.REQUEST['model_name'].capitalize()
+    obj_class = eval(model_name)
+    obj_class.objects.filter(id__in = ids).delete()
+    result ={'result':'finished'}
+    return HttpResponse(json.dumps(result),mimetype='application/json')
+
+
 
 def genericBatchDelete(request):
     print >>sys.stderr, 'deleting batch'
     #id = request.POST['deleteFormIDs']
-    ids = request.POST.getlist('selected_item')
-    print >>sys.stderr, ids
-    #print >>sys.stderr, id
-    model_name = request.POST['model_name'].capitalize()
-    obj_class = eval(model_name)
-    obj_class.objects.filter(id__in = ids).delete()
+    ids = None
+    if request.is_ajax():
+        ids = request.POST.getlist('selected_item')
+        model_name = request.GET['model_name'].capitalize()
+        obj_class = eval(model_name)
+        obj_class.objects.filter(id__in = ids).delete()
+        result ={'result':'finished'}
+        return HttpResponse(json.dump(result),mimetype='application/json')
+    else:
+        ids = request.POST.getlist('selected_item')
+        print >>sys.stderr, ids
+        #print >>sys.stderr, id
+        model_name = request.POST['model_name'].capitalize()
+        obj_class = eval(model_name)
+        obj_class.objects.filter(id__in = ids).delete()
 
-    return HttpResponseRedirect(reverse(CURRENT_APP+':genericListView',current_app=CURRENT_APP, kwargs={'model_name': model_name}))
+        return HttpResponseRedirect(reverse(CURRENT_APP+':genericListView',current_app=CURRENT_APP, kwargs={'model_name': model_name}))
 
 
 
@@ -331,7 +353,7 @@ def getDataTable(request):
             endIndex = startIndex + endIndex
         else:
             endIndex = startIndex + defaultPageSize
-    print >>sys.stderr, str(q.query)
+    #print >>sys.stderr, str(q.query)
     total = q.count()
     result = q[startIndex:endIndex]
 
@@ -342,10 +364,10 @@ def getDataTable(request):
     response_dict['iTotalDisplayRecords'] = total
     aaData = [ dict(dict(zip(col_idx, [getattr(row,colname) for colname in cols] )).items() + {'DT_RowClass':modelName, 'DT_RowId': str(row.id)}.items()) for row in result ]
 
-    #aaData =[ [ col_idx[cols.index(colname)] + ":" + str(getattr(row,colname)) for colname in cols] for row  in result ]
-    #[]
-    #     for row in result:
-#        aaData.append([row.acc_name,row.primary_phone, row.mobile,row.email,row.fax])
+
     response_dict['aaData']=aaData
-    print >> sys.stderr, json.dumps(response_dict, cls=DjangoJSONEncoder)
+    #print >> sys.stderr, json.dumps(response_dict, cls=DjangoJSONEncoder)
     return HttpResponse(json.dumps(response_dict, cls=DjangoJSONEncoder), mimetype='application/json')
+
+
+
