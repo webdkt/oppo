@@ -10,12 +10,12 @@
     {{ form.non_field_errors }}
 	
 
-	<form action="{% url 'lawaccount:createFile' %}" id='FileAjaxForm' method="post" class="form-horizontal" role="form">
+	<form action="{% url 'lawaccount:createFile' %}" id='FileAjaxCreateForm' method="post" class="form-horizontal" role="form">
 	{% csrf_token %}
 	<div class='container'>
-		<div class="row"><div class="col-md-2">{{ form.customer_id | bs3field }}</div></div>
-		<div class="row"><div class="col-md-2">{{ form.file_no | bs3field }}</div></div>
-		<div class="row"><div class="col-md-3">{{ form.file_type | bs3field }}</div></div>
+		<div class="row"><div class="col-md-4">{{ form.customer | bs3field }}</div></div>
+		<div class="row"><div class="col-md-4">{{ form.file_no | bs3field }}</div></div>
+		<div class="row"><div class="col-md-4">{{ form.file_type | bs3field }}</div></div>
 		<div class="row">
 			<div class="col-md-3">{{ form.start_date | bs3field }}</div> 
 			<script>

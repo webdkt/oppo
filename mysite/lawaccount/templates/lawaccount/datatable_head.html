@@ -20,17 +20,16 @@
 	)}
 {% endcomment %}
 
-
-
-				var aSelected = [];
-				var oTable;
+				
+				var oTable_{{model_name}};
 				var idIndex = 0;
 				
 				/* initialize table */
-				oTable = $('#{{model_name}}_datatable').dataTable({
+				oTable_{{model_name}} = $('#{{model_name}}_datatable').dataTable({
 					"sDom": "<'toolbar'><'row'<'col-sm-12'<'pull-right'f><'pull-left'l>r<'clearfix'>>>t<'row'<'col-sm-12'<'pull-left'i><'pull-right'p><'clearfix'>>>",
 					"bProcessing": true,
 					"bServerSide": true,
+					"aaSorting": [],
 					"sAjaxSource": "{% url 'lawaccount:ajaxDataTable'  %}",
 					"fnServerParams": function ( aoData ) {
 						var searchCols = {{searchCols}} ;//["first_name","last_name"];
@@ -55,7 +54,7 @@
 							// defaults to the column being worked with, in this case is the first
 							// Using `row[0]` is equivalent.
 							"mRender": function ( data, type, row ) {
-								return '<input type="checkbox" name="selected_item" value="' + row[idIndex] +'"> ' + data ;  //row[8] is ID
+								return '<input type="checkbox" name="selected_item" value="' + row[idIndex] +'"> <a href="/lawaccount/edit/{{model_name}}/' + row[idIndex] +'/">' + data + "</a>";  
 							},
 							"aTargets": [ 0 ]
 						},
@@ -67,12 +66,12 @@
 				$("div.toolbar").html('<p> \
 										  <div class="btn-toolbar">  \
 											<div class="btn-group"> \
-											  <button type="button" class="btn btn-default" id="btn_Create" title="Create new" data-toggle="modal" data-target="#{{model_name}}_dt_add_new_dialog"><span class="glyphicon glyphicon-plus"></span></button> \
+											  <button type="button" class="btn btn-default" id="btn_Create_{{model_name}}" title="Create new" data-toggle="modal" data-target="#{{model_name}}_create_new_form"><span class="glyphicon glyphicon-plus"></span></button> \
 											  <button type="button" class="btn btn-default" id="btn_Edit" title="Edit selected"><span class="glyphicon glyphicon-pencil"></span></button> \
-											  <button type="button" class="btn btn-default" title="Delete selected"  data-toggle="modal" data-target="#{{model_name}}_dt_form_confirmDialog"><span class="glyphicon glyphicon-trash"></span></button> \
-											  <button type="button" class="btn btn-default" id="btn_SelectAll" title="Select All"><span class="glyphicon glyphicon-ok"></span></button> \
-											  <button type="button" class="btn btn-default" id="btn_InvertSelect" title="Invert Selection"><span class="glyphicon glyphicon-ok-sign"></span></button> \
-											  <button type="button" class="btn btn-default" id="btn_ClearSelect" title="Clear Selection"><span class="glyphicon glyphicon-minus-sign"></span></button> \
+											  <button type="button" class="btn btn-default" id="btn_delete_{{model_name}}" title="Delete selected"  data-toggle="modal" data-target="#{{model_name}}_delete_form_confirmDialog"><span class="glyphicon glyphicon-trash"></span></button> \
+											  <button type="button" class="btn btn-default" id="btn_SelectAll_{{model_name}}" title="Select All"><span class="glyphicon glyphicon-ok"></span></button> \
+											  <button type="button" class="btn btn-default" id="btn_InvertSelect_{{model_name}}" title="Invert Selection"><span class="glyphicon glyphicon-ok-sign"></span></button> \
+											  <button type="button" class="btn btn-default" id="btn_ClearSelect_{{model_name}}" title="Clear Selection"><span class="glyphicon glyphicon-minus-sign"></span></button> \
 											</div> \
 										</div></p> \
 									  ');
@@ -80,16 +79,7 @@
 				$('.dataTable').dataTable().fnSetFilteringDelay();  //add delay to search
 
 				$('#{{model_name}}_datatable tbody tr').live('click', function (e) {
-					var id = this.id;
 					
-					var index = jQuery.inArray(id, aSelected);
-					 
-					if ( index === -1 ) {
-						aSelected.push( id );
-						//alert(id);
-					} else {
-						aSelected.splice( index, 1 );
-					}
 					if (e.target.type == "checkbox") {
 						e.isPropagationStopped()
 					}else{
@@ -98,17 +88,21 @@
 					}
 				} );
 				
+				//双击打开Ajax 编辑页面
 				$('#{{model_name}}_datatable tbody tr').live('dblclick', function () {
 					var id = this.id;
-					window.location.href = "/lawaccount/edit/customer/"+id;
+					$.get( "/lawaccount/edit/{{parent_model}}/{{parent.id}}/{{model_name}}/"+id, function( data ) {
+						$("#edit_form_dynamic" ).html( data );
+					});
+					$("#{{model_name}}_edit_form").modal('show');
 				} );
 				
-				//$('#{{model_name}}_dt_add_new_dialog').click( function(){
-					//window.location.href = "{% url 'lawaccount:genericCreate' model_name=model_name %}";
-				//});
-				$('#{{model_name}}_dt_form_continue').click( function(e){  //this is for delete button
-					var postData = $("#{{model_name}}_dt_form").serializeArray();
-					var formURL = $("#{{model_name}}_dt_form").attr("action");
+				//提交批量删除
+				$('#{{model_name}}_delete_form_button').click( function(e){  //this is for delete button
+					$('#{{model_name}}_delete_form_confirmDialog').modal('hide')
+					$('#{{model_name}}_processing').modal('show'); //show processing window
+					var postData = $("#{{model_name}}_delete_form").serializeArray();
+					var formURL = $("#{{model_name}}_delete_form").attr("action");
 					$.ajax(
 					{
 						url : formURL,
@@ -117,25 +111,29 @@
 						crossDomain: false,
 						success:function(data, textStatus, jqXHR)
 						{
-							oTable.fnDraw();
-							$('#{{model_name}}_dt_form_confirmDialog').modal('hide')
+							oTable_{{model_name}}.fnDraw();
+							$('#{{model_name}}_processing').modal('hide'); //hide processing window
+							$('#{{model_name}}_success').modal('show'); 
 							//data: return data from server
 						},
 						error: function(jqXHR, textStatus, errorThrown)
 						{
 							alert(textStatus);
 							alert(errorThrown);
-							oTable.fnDraw();
+							oTable_{{model_name}}.fnDraw();
 							//if fails     
 						}
 					});
-					e.preventDefault(); //STOP default action
+					//e.preventDefault(); //STOP default action
 				});
-				$('#{{model_name}}_dt_add_new_form_continue').click( function(e){  //this is for add new record form, Create button
-					$("#id_{{parent_model.lower}}_id").removeAttr('disabled');
-					$("#id_{{parent_model.lower}}_id").attr('value','{{parent.id}}');
-					var postData = $("#{{model_name}}AjaxForm").serializeArray();
-					var formURL = $("#{{model_name}}AjaxForm").attr("action");
+				//提交新建
+				$('#{{model_name}}_create_new_form_button').click( function(e){  //this is for add new record form, Create button
+					$("#{{model_name}}_create_new_form_button").attr('disabled','disabled'); //disable save button
+					$("#{{model_name}}_create_new_form_title").append('<i class="fa fa-spinner fa-spin fa-lg"></i>');
+					//$("#id_{{parent_model.lower}}_id").removeAttr('disabled');
+					//$("#id_{{parent_model.lower}}_id").attr('value','{{parent.id}}');
+					var postData = $("#{{model_name}}AjaxCreateForm").serializeArray() ;
+					var formURL = $("#{{model_name}}AjaxCreateForm").attr("action");
 					$.ajax(
 					{
 						url : formURL,
@@ -144,43 +142,103 @@
 						crossDomain: false,
 						success:function(data, textStatus, jqXHR)
 						{
-							oTable.fnDraw();
-							$('#{{model_name}}_dt_add_new_dialog').modal('hide'); //close model window
-							//data: return data from server
+							oTable_{{model_name}}.fnDraw();
+							$("#{{model_name}}_create_new_form_button").removeAttr('disabled');
+							$("#{{model_name}}_create_new_form_title I").remove();
+							$('#{{model_name}}_create_new_form').modal('hide');
+							$('#{{model_name}}_success').modal('show'); 
 						},
 						error: function(jqXHR, textStatus, errorThrown)
 						{
-							//alert(textStatus);
-							alert(errorThrown);
+							
+							$("#{{model_name}}_create_new_form_button").removeAttr('disabled'); //enable button
+							$("#{{model_name}}_create_new_form_title I").remove();  //remove circle
+							//$("#id_{{parent_model.lower}}_id").attr('value','{{parent.first_name}} {{parent.last_name}} ');
 							//$("#id_{{parent_model.lower}}_id").attr('disabled','disabled');
-							//$("#error_info").html(errorThrown);
-							//oTable.fnDraw();
-							//if fails     
+													
+							var errors = jQuery.parseJSON(jqXHR.responseText);
+							$.each(errors, function(key,value) {
+							   //每个错误，在页面上显示出来
+							   console.log("key:" + key + "  value:" + value)
+							   var inputParent = $("#{{model_name}}_create_new_form  #id_"+key).parent(" .form-group")
+							   $(inputParent).addClass("has-error");
+							   $("#{{model_name}}_create_new_form #id_"+key).attr("placeholder", value);
+							   //$(inputParent).append('<span class="help-block">'+value+'</span>');
+							})
+							
 						}
 					});
-					e.preventDefault(); //STOP default action
 				});
-				$('#{{model_name}}_dt_add_new_dialog').on('show.bs.modal', function () {  //when open create new window, we dynamically load content
-					$.get( "/lawaccount/create/{{model_name}}/", function( data ) {
-						$( "#new_add_form_dynamic" ).html( data );
+				//打开编辑
+				$('#{{model_name}}_edit_form_button').click( function(e){  //this is for add new record form, Create button
+					$("#{{model_name}}_edit_form_button").attr('disabled','disabled'); //disable save button
+					$("#{{model_name}}_edit_form_title").append('<i class="fa fa-spinner fa-spin fa-lg"></i>'); //add animation
+					$("#id_{{parent_model.lower}}_id").removeAttr('disabled');
+					$("#id_{{parent_model.lower}}_id").attr('value','{{parent.id}}');
+					var postData = $("#{{model_name}}AjaxEditForm").serializeArray();
+					var formURL = $("#{{model_name}}AjaxEditForm").attr("action");
+					$.ajax(
+					{
+						url : formURL,
+						type: "POST",
+						data : postData,
+						crossDomain: false,
+						success:function(data, textStatus, jqXHR)
+						{
+							oTable_{{model_name}}.fnDraw();
+							$("#{{model_name}}_edit_form_button").removeAttr('disabled');
+							$("#{{model_name}}_edit_form_title I").remove();
+							$('#{{model_name}}_edit_form').modal('hide');
+							$('#{{model_name}}_success').modal('show'); 
+						},
+						error: function(jqXHR, textStatus, errorThrown)
+						{
+							
+							$("#{{model_name}}_edit_form_button").removeAttr('disabled'); //enable button
+							$("#{{model_name}}_edit_form_title I").remove();  //remove circle
+							$("#id_{{parent_model.lower}}_id").attr('value','{{parent.first_name}} {{parent.last_name}} ');
+							$("#id_{{parent_model.lower}}_id").attr('disabled','disabled');
+													
+							var errors = jQuery.parseJSON(jqXHR.responseText);
+							
+							$.each(errors, function(key,value) {
+							   //每个错误，在页面上显示出来
+							   console.log("key:" + key + "  value:" + value)
+							   var inputParent = $("#{{model_name}}_edit_form  #id_"+key).parent(" .form-group")
+							   
+							   $(inputParent).addClass("has-error");
+							   $("#{{model_name}}_edit_form  #id_"+key).attr("placeholder", value);
+							   //$(inputParent).append('<span class="help-block">'+value+'</span>');
+							})
+							
+						}
+					});
+					//e.preventDefault(); //STOP default action
+				});
+				
+				
+				$('#{{model_name}}_create_new_form').on('show.bs.modal', function () {  //when open create new window, we dynamically load content
+					$.get( "/lawaccount/create/{{parent_model}}/{{parent.id}}/{{model_name}}/", function( data ) {
+						$( "#create_form_dynamic" ).html( data );
 						$("#id_{{parent_model.lower}}_id").attr('value','{{parent.first_name}} {{parent.last_name}} ');
 						$("#id_{{parent_model.lower}}_id").attr('disabled','disabled');
+				
 					});
 				})
-
 				
 				
-				$('#btn_SelectAll').click( function(){
-					$('#{{model_name}}_dt_form input:checkbox').attr('checked',true);
+				
+				$('#btn_SelectAll_{{model_name}}').click( function(){
+					$('#{{model_name}}_delete_form input:checkbox').attr('checked',true);
 				
 				});
-				$('#btn_InvertSelect').click( function(){
-					$('#{{model_name}}_dt_form input:checkbox').each(function(){
+				$('#btn_InvertSelect_{{model_name}}').click( function(){
+					$('#{{model_name}}_delete_form input:checkbox').each(function(){
 						$(this).attr('checked',! $(this).attr('checked'));
 					});
 				});
-				$('#btn_ClearSelect').click( function(){
-					$('#{{model_name}}_dt_form input:checkbox').attr('checked',false);
+				$('#btn_ClearSelect_{{model_name}}').click( function(){
+					$('#{{model_name}}_delete_form input:checkbox').attr('checked',false);
 				});
 				
 				

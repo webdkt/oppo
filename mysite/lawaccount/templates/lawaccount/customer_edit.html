@@ -10,15 +10,12 @@
 {% block custom_script %}
 	$(document).ready(function() {
 		var file_tab_initilaized = false;
-	
-	
 		$('#submitCustomerButton').click( function(){
 			$('#customerForm').submit();
 		});
 		$('#cancelCustomerButton').click( function(){
 			window.location.href = "{% url 'lawaccount:genericListView' model_name='Customer' %}";
 		});
-		
 		//set drop down list style for 3 columns
 		$('#id_nationality').addClass('chosen-select');
 		$('#id_nationality').chosen();
@@ -38,20 +35,19 @@
 			beforeActivate: function (event, ui) {
 				tabid = ui.newPanel.attr('id')
 				if (tabid == 'tabs-file' && !file_tab_initilaized){
-					//This is to initialize tab for Files, init tables, init javascripts
+					//如果需要加载Files,那么就初始化相关datatable
 					file_tab_initilaized=true;
 					{% if customer.id %}
-						{% include "lawaccount/datatable_head.html" with model_name='File'  searchCols='["file_no"]' cols='["file_no","file_type","start_date","id"]'  parent=customer parent_model="customer"%}
+						{% include "lawaccount/datatable_head.html" with model_name='File'  searchCols='["file_no"]' cols='["file_no","file_type","start_date","id"]' searchMode='startwith' parent=customer parent_model="Customer"%}
 					{% endif %}
 					
 				}
 			}
 		});
+		//切换到有错误的Tab
 		var count = $(".has-error").length;
 		if (count>0) {
-			var x =  $(".has-error").first()
-			var p = x.parents("[id^='tabs-']");
-			var tab_name = p.attr('id');
+			var tab_name = $(".has-error").first().parents("[id^='tabs-']").attr('id');
 			var li = $('#tabs li a[name="'+ tab_name + '"]');
 			var index = $('#tabs li a').index(li);
 			$( "#tabs" ).tabs("option", "active", index );

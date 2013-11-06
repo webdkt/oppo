@@ -22,6 +22,7 @@
 					"sDom": "<'toolbar'><'row'<'col-sm-12'<'pull-right'f><'pull-left'l>r<'clearfix'>>>t<'row'<'col-sm-12'<'pull-left'i><'pull-right'p><'clearfix'>>>",
 					"bProcessing": true,
 					"bServerSide": true,
+					"aaSorting": [],
 					"sAjaxSource": "{% url 'lawaccount:ajaxDataTable'  %}",
 					"fnServerParams": function ( aoData ) {
 						var searchCols = ["first_name","last_name"];
@@ -108,7 +109,7 @@
 				
 				$('#table_list_view tbody tr').live('dblclick', function () {
 					var id = this.id;
-					window.location.href = "/lawaccount/edit/customer/"+id;
+					window.location.href = "/lawaccount/edit/Customer/"+id;
 				} );
 				
 				$('#btn_Create').click( function(){

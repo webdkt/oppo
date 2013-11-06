@@ -8,7 +8,7 @@ from lawaccount.models import *
 from django.views.generic.base import TemplateView
 from lawaccount.forms import ClientForm
 from django.core.serializers.json import DjangoJSONEncoder
-from django.forms.models import modelform_factory
+from django import forms
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.auth import authenticate, login
 import logging
@@ -34,7 +34,7 @@ class AjaxableResponseMixin(object):
     def render_to_json_response(self, context, **response_kwargs):
         data = json.dumps(context)
         response_kwargs['content_type'] = 'application/json'
-        print >> sys.stderr , context
+        print >> sys.stderr , data
         return HttpResponse(data, **response_kwargs)
 
     def form_invalid(self, form):
@@ -63,18 +63,65 @@ class AjaxableResponseMixin(object):
 class FileCreate(AjaxableResponseMixin,CreateView):
     model = File
     template_name = CURRENT_APP + '/file_create_ajax.html'
+    customer = None
+    def dispatch(self, *args, **kwargs):
+        if kwargs.has_key('customer_id'):  #this is before POST, after post, no need
+            customer_id = int(kwargs['customer_id']);
+            self.customer = Customer.objects.get(pk=customer_id)
+
+        return super(FileCreate,self).dispatch(*args, **kwargs)
+
+    def get_initial(self):
+        initial = super(FileCreate, self).get_initial()
+        initial['customer'] = self.customer
+        return initial
+    def get_form(self, form_class):
+        """
+        Returns an instance of the form to be used in this view.
+        """
+        form = super(FileCreate,self).get_form(form_class)
+        #
+        if self.customer:
+            print >> sys.stderr,"========customer id is:==========" + str(self.customer.pk)
+            form.fields["customer"].queryset = Customer.objects.filter(pk=self.customer.pk)
+
+        #form.customer = forms.ModelChoiceField(queryset=Customer.objects.get(pk=self.customer_id))
+        return form
 
 
 
-class GenericEdit(UpdateView,AjaxableResponseMixin):
+
+class FileUpdate(AjaxableResponseMixin,UpdateView):
+    model = File
+    template_name = CURRENT_APP + '/file_edit_ajax.html'
+
+    def get_form(self, form_class):
+        """
+        Returns an instance of the form to be used in this view.
+        """
+        form = super(FileUpdate,self).get_form(form_class)
+        #print >> sys.stderr,"========existing customer id is:=========="  + str(form.initial['customer'])
+        form.fields["customer"].queryset = Customer.objects.filter(pk=form.initial['customer'])
+
+        #form.customer = forms.ModelChoiceField(queryset=Customer.objects.get(pk=self.customer_id))
+        return form
+
+
+
+
+
+class GenericEdit(AjaxableResponseMixin,UpdateView):
     model = None
     #context_object_name = 'object'
     template_name = None
 
     def dispatch(self,*args, **kwargs):
-        model_name=kwargs['model_name'].capitalize()
+        model_name=kwargs['model_name']
         self.model = eval(model_name)
-        self.template_name = CURRENT_APP + '/' + model_name.lower() + '_edit.html'
+        if args[0].is_ajax():
+            self.template_name = CURRENT_APP + '/' + model_name.lower() + '_edit_ajax.html'
+        else:
+            self.template_name = CURRENT_APP + '/' + model_name.lower() + '_edit.html'
         self.context_object_name = model_name.lower()
         print >>sys.stderr, 'Generic Edit Loading: ' + self.template_name
         return super(GenericEdit,self).dispatch(*args, **kwargs)
@@ -315,7 +362,7 @@ def getDataTable(request):
     #print >>sys.stderr, 'q genereated !'
     if (request.GET.has_key('sSearch') ):
         if request.GET['sSearch']:
-            searchString =  request.GET['sSearch'].capitalize()
+            searchString =  request.GET['sSearch']
             print >>sys.stderr, '======================searching: '+ searchString +'====================='
             #searchColName = searchCols[0]
             query_condition = ""
@@ -337,13 +384,12 @@ def getDataTable(request):
     if len(query_condition_list)>0:
         q = q.extra(where=query_condition_list)
     if request.GET.has_key('iSortCol_0'):
-        for i in range(0,int(request.GET['iSortingCols'] )):
-            if request.GET['bSortable_'+ request.GET['iSortCol_'+str(i)]] == 'true':
-                direction = request.GET.get('iSortDir_'+str(i),'asc')
-                if direction == 'asc':
-                    q = q.order_by(cols[int(request.GET['iSortCol_'+str(i)])-1])
-                else:
-                    q = q.order_by('-'+cols[int(request.GET['iSortCol_'+str(i)])-1])
+        direction = request.GET.get('sSortDir_0')
+        if direction == 'asc':
+            q = q.order_by(cols[int(request.GET['iSortCol_0'])])
+        else:
+            q = q.order_by('-'+cols[int(request.GET['iSortCol_0'])])
+
 
     if request.GET.has_key('iDislayStart'):
         startIndex = request.GET['iDisplayStart']
@@ -353,7 +399,7 @@ def getDataTable(request):
             endIndex = startIndex + endIndex
         else:
             endIndex = startIndex + defaultPageSize
-    #print >>sys.stderr, str(q.query)
+    print >>sys.stderr, str(q.query)
     total = q.count()
     result = q[startIndex:endIndex]
 
