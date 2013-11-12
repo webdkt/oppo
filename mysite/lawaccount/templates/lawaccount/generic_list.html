@@ -1,0 +1,77 @@
+{% extends 'lawaccount/base.html' %}
+{% load staticfiles %}
+{% block custom_css_file %} 
+	<link href="{% static 'lawaccount/css/frank.css' %}" rel="stylesheet" >
+{% endblock %}
+
+{% block custom_script_file %}
+	<script src="{% static 'lawaccount/js/jquery.dataTables.min.js' %}"></script>
+	<script src="{% static 'lawaccount/js/datatables.js' %}"></script>
+	<script src="{% static 'lawaccount/js/custom.js' %}"></script>
+{% endblock %}
+
+{% block custom_script %}
+			
+			$(document).ready(function() {
+				{% include "lawaccount/datatable_head.html" with model_name='File'  searchCols='["col1"]' cols='["col1","col2","id"]' parent=customer parent_model="customer" %}
+			} );
+			
+			
+			
+{% endblock %}
+
+
+{% block content %}
+
+<div class="panel panel-default">
+	<ol class="breadcrumb">
+	  <li><a href="#">Home</a></li>
+	  <li class="active">Customer</li>
+	</ol>
+
+	<div class="panel-body">
+		<form action="{% url 'lawaccount:genericBatchDelete' %}" id='deleteForm' method="post">{% csrf_token %}
+			<input type="hidden" name="model_name" value="Customer" />
+
+				<table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered" id="table_list_view">
+                        <thead>
+                            <tr>
+								<th class="content-left">NRIC</th>
+                                <th class="content-left">Name</th>
+								<th class="content-left">Mobile</th>
+                                <th class="content-left">Email</th>
+								<th class="content-left">Employer</th>
+								<th class="content-left">Occupation</th>
+								
+								
+                            </tr>
+                        </thead>
+						<tbody>
+							<tr>
+								<td colspan="6" class="dataTables_empty">Loading data from server</td>
+							</tr>
+						</tbody>
+				</table>
+		</form>
+	</div>
+</div>
+<!-- 确认对话框 -->
+ <div class="modal fade" id="confirmDialog" tabindex="-1" role="dialog" aria-labelledby="confirmDialog" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Delete Customer</h4>
+        </div>
+        <div class="modal-body">
+          This will permanently delete selected customer records, are you sure? 
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="btn_Delete"  >Yes, Continue</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+ </div>
+
+{% endblock %}

@@ -7,7 +7,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title>My InK Page</title>
+        <title>Login </title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="HandheldFriendly" content="True">
@@ -73,10 +73,11 @@
 	
 	<h1><i class="icon-keyboard  icon-large"></i> Frank's Demo</h1>
 	 <div class="container">
-
+		{% if error_message %}<div class="alert alert-warning">{{ error_message }}</div>{% endif %}
+		<p />
       <form class="form-signin" action="{% url 'lawaccount:loginAction' %}" method="post">{% csrf_token %}
         <h2 class="form-signin-heading">Please sign in</h2>
-        <input type="text" class="form-control" placeholder="Email address" autofocus name="username">
+        <input type="text" class="form-control" placeholder="User name" autofocus name="username">
         <input type="password" class="form-control" placeholder="Password" name="password">
         <label class="checkbox">
           <input type="checkbox" value="remember-me"> Remember me
@@ -89,13 +90,7 @@
 	
 	
 	
-	
-	
-	
-	
-	
-	
-		{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
 		
 	
 		

@@ -88,6 +88,26 @@ STATICFILES_FINDERS = (
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
+LOGIN_URL = '/lawaccount/login/'
+
+
+PUBLIC_VIEWS = (
+    'lawaccount.views.LoginView',
+    'lawaccount.views.loginAction',
+    )
+
+PUBLIC_PATHS = (
+    '^%s' % STATIC_URL,
+    '/lawaccount/login',
+    '/lawaccount/login.do',
+    '/lawaccount/logout.do'
+
+    #'^/accounts/register/complete/$', # Uses the 'direct_to_template' generic view
+    )
+
+
+
+
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'ry=j*@nv2(nby49)nkab7hwk19=mptjdk!@eif=t)*#=r-k6@i'
 
@@ -104,6 +124,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'common.mw.LoginRequiredMiddleware'
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )

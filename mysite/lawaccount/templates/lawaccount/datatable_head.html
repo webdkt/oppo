@@ -79,7 +79,7 @@
 				$('.dataTable').dataTable().fnSetFilteringDelay();  //add delay to search
 
 				$('#{{model_name}}_datatable tbody tr').live('click', function (e) {
-					
+					$(this).toggleClass('success');
 					if (e.target.type == "checkbox") {
 						e.isPropagationStopped()
 					}else{

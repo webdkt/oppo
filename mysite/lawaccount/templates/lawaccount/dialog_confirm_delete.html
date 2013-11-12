@@ -1,0 +1,46 @@
+
+{% comment %}	
+  调用方法：
+  {% include "lawaccount/dialog_confirm_delete.html" with title='Some Title'  text='Some text' button_id='btn_id'  %}
+  
+  全部optional，如果缺省
+  title = 'Confirm Delete'
+  text = 'This will permanently delete selected file records, are you sure? '
+  button_id = 'btn_Delete'
+  
+
+{% endcomment %}
+
+
+ <div class="modal fade" id="confirmDialog" tabindex="-1" role="dialog" aria-labelledby="confirmDialog" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			<h4 class="modal-title">
+				{% if title %}
+					{{title}}
+				{% else %}
+					Confirm Delete
+				{% endif %}
+			</h4>
+        </div>
+        <div class="modal-body">
+			{% if text %}
+				{{text}}
+			{% else %}
+				This will permanently delete selected file records, are you sure? 
+			{% endif %}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+		  {% if button_id %}
+				<button type="button" class="btn btn-primary" id="{{button_id}}" >Yes, Continue</button>
+		  {% else %}
+				<button type="button" class="btn btn-primary" id="btn_Delete"  >Yes, Continue</button>
+		  {% endif %}
+          
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+ </div>

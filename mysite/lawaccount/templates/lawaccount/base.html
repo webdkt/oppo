@@ -36,66 +36,49 @@
 <nav class="navbar navbar-default" role="navigation">
   <!-- Brand and toggle get grouped for better mobile display -->
   <div class="navbar-header">
-    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
       <span class="sr-only">Toggle navigation</span>
       <span class="icon-bar"></span>
       <span class="icon-bar"></span>
       <span class="icon-bar"></span>
     </button>
-	<a class="navbar-brand" href="#">Frank's Demo</a>
+    <a class="navbar-brand" href="#">Frank Demo</a>
   </div>
 
   <!-- Collect the nav links, forms, and other content for toggling -->
-  <div class="collapse navbar-collapse navbar-ex1-collapse">
-    <ul class="nav navbar-nav">
-      <li class='dropdown {% if first_level_view_name == "Account" %} active {% endif %}'>
-		<a class="dropdown-toggle" data-toggle="dropdown" href=""><i class="icon-user"></i>Account <b class="caret"></b></a>
-		<ul class="dropdown-menu">
-          <li><a href=""><i class="icon-table"></i>List</a></li>
-          <li><a href=""><i class="icon-plus"></i>Create new</a></li>
-          <li><a href="#"><i class="icon-print"></i>Print</a></li>
-          <li><a href="#"><i class="icon-search"></i>Advanced Search</a></li>
-          <li><a href="#"><i class="icon-bar-chart"></i>Reports</a></li>
-        </ul>
-	  </li>
-      <li><a href="#">Demo</a></li>
-      <li class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown Demo<b class="caret"></b></a>
-        <ul class="dropdown-menu">
-          <li><a href="#">Action</a></li>
-          <li><a href="#">Another action</a></li>
-          <li><a href="#">Something else here</a></li>
-          <li><a href="#">Separated link</a></li>
-          <li><a href="#">One more separated link</a></li>
-        </ul>
-      </li>
-    </ul>
-    <form class="navbar-form navbar-left" role="search">
-      <div class="form-group">
-        <input type="text" class="form-control" placeholder="Search">
-      </div>
-      <button type="submit" class="btn btn-default">Submit</button>
-    </form>
+  <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+
     <ul class="nav navbar-nav navbar-right">
-      <li><a href="#">Link</a></li>
-      <li class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
-        <ul class="dropdown-menu">
-          <li><a href="#">Action</a></li>
-          <li><a href="#">Another action</a></li>
-          <li><a href="#">Something else here</a></li>
-          <li><a href="#">Separated link</a></li>
-        </ul>
-      </li>
+		<li><a href="#"><i class="fa fa-cog fa-lg" data-toggle="tooltip" title="Settings" ></i></a></li>
+		<li><a href="#"><i class="fa fa-sign-out fa-lg" data-toggle="tooltip" title="Sign Out"></i></a></li>
+		<li class="dropdown">
+		<a href="#" class="dropdown-toggle" data-toggle="dropdown">Help <b class="caret"></b></a>
+		<ul class="dropdown-menu">
+			<li><a href="#">Manual</a></li>
+			<li><a href="#">Online Assistant</a></li>
+			<li><a href="#">One-Click Support</a></li>
+			<li class="divider"></li>
+			<li><a href="#">About</a></li>
+		</ul>
+		</li>
     </ul>
   </div><!-- /.navbar-collapse -->
 </nav>
 
-
-      <!-- Main component for a primary marketing message or call to action -->
-      
-
+<div class="row">
+	<div class="col-md-1"><!--menu-->
+		<ul class="nav nav-pills nav-stacked">
+			<li id="menu_dashboard"><a href="#">Dashboard </a></li>
+			<li id="menu_customer"><a href="{% url 'lawaccount:genericListView' model_name='Customer' %}">Customer</a></li>
+			<li id="menu_file"><a href="{% url 'lawaccount:genericListView' model_name='File' %}">File</a></li>
+			<li id="menu_xxxx"><a href="#">Admin</a></li>
+		</ul>
+	</div>
+	<div class="col-md-10">
+	  <!--content-->
 		{% block content %}{% endblock %}
+	</div>
+
 
 
 </body>

@@ -331,6 +331,9 @@ class Customer(models.Model):
     def get_absolute_url(self):
         return reverse('lawaccount:genericListView',kwargs={'model_name': 'customer'})
 
+    def getFullName(self):
+        return self.first_name + " " + self.last_name
+
 class File(models.Model):
     FILE_TYPE=(
         ('Type A','Type A'),

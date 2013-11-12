@@ -10,7 +10,8 @@ from lawaccount.forms import ClientForm
 from django.core.serializers.json import DjangoJSONEncoder
 from django import forms
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
+from django.db.models import Q
 import logging
 import sys
 
@@ -263,7 +264,7 @@ def loginAction(request):
         if user.is_active:
             login(request, user)
             # Redirect to a success page.
-            return HttpResponseRedirect(reverse(CURRENT_APP+':clientListView',current_app=CURRENT_APP))
+            return HttpResponseRedirect(reverse(CURRENT_APP+':genericListView',current_app=CURRENT_APP, kwargs={'model_name':'Customer'}))
             #return render(request, CURRENT_APP +'/login.html',{'error_message': 'Login Success'})
         else:
             return HttpResponseRedirect(reverse(CURRENT_APP+':login',current_app=CURRENT_APP,kwargs={'error_message':'User Account Locked'}))
@@ -273,6 +274,11 @@ def loginAction(request):
         return render(request, CURRENT_APP+'/login.html', {'error_message': "Invalid User/Password",})
 
         #return HttpResponseRedirect(reverse(CURRENT_APP+':login',current_app='lawaccount',kwargs={'error_message:Invalid User/Password'}))
+
+
+def logoutAction(request):
+    logout(request)
+    return  render(request, CURRENT_APP+'/login.html', {'error_message': "Logged Out!",})
 
 '''
 配合JQuery Datatables,用Ajax GET方法在服务器端获取数据
@@ -348,6 +354,7 @@ def getDataTable(request):
     defaultPageSize = 10
     modelName = request.GET['modelName']
     searchCols = request.GET.getlist('searchCols')
+    #print >>sys.stderr, "searchCols is now:" + str(searchCols)
     if request.GET.has_key('iDisplayLength'):
         defaultPageSize = int(request.GET['iDisplayLength'])
 
@@ -355,34 +362,40 @@ def getDataTable(request):
     if request.GET.has_key('iDisplayStart'):
         startIndex = int(request.GET['iDisplayStart'])
     endIndex = startIndex + defaultPageSize
-    modelClass = eval(modelName.capitalize())#getattr(lawaccount.models, modelName)
+    modelClass = eval(modelName)#getattr(lawaccount.models, modelName)
     q = modelClass.objects.all()
-    #print >>sys.stderr, q.query
-    query_condition_list = []
+
+
     #print >>sys.stderr, 'q genereated !'
+    qqq = None
     if (request.GET.has_key('sSearch') ):
         if request.GET['sSearch']:
             searchString =  request.GET['sSearch']
-            print >>sys.stderr, '======================searching: '+ searchString +'====================='
-            #searchColName = searchCols[0]
-            query_condition = ""
-            #query_condition = [Q({'{0}__istartswith'.format(searchColName):searchString}) for searchColName in searchCols]
-
             for i in range(len(searchCols)):
                 searchColName = searchCols[i]
+                print >> sys.stderr,"searchColName is:" + searchColName
                 if (i ==0 ):
-                    query_condition = searchColName + " LIKE '" + searchString +  "%%'"
+                    # #query_condition = searchColName + " LIKE '" + searchString +  "%%'"
+                    #qqq = Q({'{0}__istartswith'.format(searchColName):searchString})
+                    qqq = eval("Q("+searchColName+"__istartswith = '"+searchString+"')")
                 else:
-                    query_condition += " OR " + searchColName + " LIKE '" + searchString +  "%%'"
-            query_condition_list = [query_condition]
+                    # #query_condition += " OR " + searchColName + " LIKE '" + searchString +  "%%'"
+                    qqq = qqq | eval("Q("+searchColName+"__istartswith = '"+searchString+"')")
+                    # #query_condition_list = [query_condition]
+                    #print >>sys.stderr, "query is:" + str(q.query)
+            if qqq:
+                q = modelClass.objects.filter(qqq)
+
+
 
     if (request.GET.has_key('parent_model')):
         q_cond = request.GET['parent_model']+'_id = ' +request.GET['parent_id']
-        query_condition_list.append(q_cond)
+        q = q.extra(where=[q_cond])
 
 
+    '''
     if len(query_condition_list)>0:
-        q = q.extra(where=query_condition_list)
+        q = q.extra(where=query_condition_list)'''
     if request.GET.has_key('iSortCol_0'):
         direction = request.GET.get('sSortDir_0')
         if direction == 'asc':
@@ -408,7 +421,8 @@ def getDataTable(request):
     response_dict['sEcho']= request.GET['sEcho']
     response_dict['iTotalRecords']= total
     response_dict['iTotalDisplayRecords'] = total
-    aaData = [ dict(dict(zip(col_idx, [getattr(row,colname) for colname in cols] )).items() + {'DT_RowClass':modelName, 'DT_RowId': str(row.id)}.items()) for row in result ]
+    #aaData = [ dict(dict(zip(col_idx, [getattr(row,colname) for colname in cols] )).items() + {'DT_RowClass':modelName, 'DT_RowId': str(row.id)}.items()) for row in result ]
+    aaData = [ dict(dict(zip(col_idx, [eval('row.'+colname) for colname in cols] )).items() + {'DT_RowClass':modelName, 'DT_RowId': str(row.id)}.items()) for row in result ]
 
 
     response_dict['aaData']=aaData
